@@ -1,15 +1,26 @@
 <html>
+    <script>
+        function enter()
+        {
+           document.getElementById("n1").style.display="none";
+           document.getElementById("n2").style.display="inline-block";
+        }
+        function out()
+        {
+        document.getElementById("n1").style.display="inline-block";
+        document.getElementById("n2").style.display="none";
+        }
+    </script>
     <link href="style.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/066e2ea6c3.js" crossorigin="anonymous"></script>
-    <script>
-        console.log(2+2);
-    </script>
-<body style="margin:0%;">
-<div class="centra font bg">
-Hi, I'm Marco and i'm a not very motivated computer science student
+<body style="margin:0%;" class="bg">
+<div class="centra font">
+    <div class="ct" onmouseenter="enter()" onmouseleave="out()">
+Hi, I'm Marco and i <z id="n1">study computer science</z><z1 id="n2" style="display:none">spend a lot of time</z1> at university
+    </div>
 </div>
 </body>
 </html>
