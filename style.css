@@ -1,95 +1,17 @@
-.barra_ele{
-    width: auto;
-    display:flex;
-    border: none;
-    outline: none;
-    padding: 1% 1%;
-    margin:10px 2%;
-    display: inline-block;
-    font-family: 'Poppins', sans-serif; text-align: center;
-    text-align: center;
-    background-color:transparent;
-    color: #fff;
-    cursor: pointer;
-    position: relative;
-    z-index: 0;
-    border-radius: 10px;
-}
-.mobile
+.centra
 {
-    display:flex;
+display: flex;
+justify-content: center;
+align-items: center;
+height: 100%;
 }
-.barra {
-    width: 100%;
-    height: 170px;
-    z-index: 3;
-    position: fixed;
-    margin: 0;
-    padding: 0;
-    color: white;
-    background-attachment: fixed;
-    overflow: hidden;
-    background-image:  linear-gradient(to right bottom, #09034b, #6E0058);
-    background-size: cover;
-    clip-path: polygon(0 0, 100% 0, 100% 100px, 0 50px);
-            -webkit-clip-path: polygon(0 0, 100% 0, 100% 120px, 0 70px);
-            -moz-clip-path: polygon(0 0, 100% 0, 100% 100px, 0 50px);
-    -webkit-background-size: cover;
-    background-repeat: no-repeat;
+.font
+{
+font-family: 'VT323';
+font-size: xx-large;
+color: #ffffff;
 }
-
-ul.vertical li:hover {
-  box-shadow: 1px 1px 25px 10px #ff5100a8 ;
-}
-
-.barra_ele:before {
-    content: '';
-    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    background-color: black;
-    position: absolute;
-    top: -2px;
-    left:-2px;
-    background-size: 400%;
-    z-index: -1;
-    filter: blur(40px);
-    width: calc(100% + 4px);
-    height: calc(100% + 4px);
-    animation: glowing 20s linear infinite;
-    opacity: 0;
-    transition: opacity .3s ease-in-out, left 1s  ease-in-out;
-    border-radius: 10px;
-}
-
-@keyframes run {
-  0% { left: 0;}
-  100%{ left: 1000px;}
-}
-
-.barra_ele:active {
-    color: transparent;
-}
-
-.barra_ele:active:after {
-    background: transparent;
-}
-
-.barra_ele:hover:before {
-    opacity: 1;
-}
-
-.barra_ele:after {
-    z-index: -1;
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background:transparent;
-    top: 0;
-    border-radius: 10px;
-}
-
-@keyframes glowing {
-    0% { background-position: 0 0;}
-    50% { background-position: 400% 0;}
-    100% { background-position: 0 0;}
+.bg
+{
+    background-color: #121212;
 }
