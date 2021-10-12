@@ -11,6 +11,12 @@ height: 100%;
     display: flex;
     justify-content: center;
 }
+.pomodoro
+{
+position: absolute;
+left: 48%;
+width: 60px;
+}
 .barrato
 {
 text-decoration:none ;
@@ -21,7 +27,6 @@ font-family: 'VT323';
 font-size: xx-large ;
 color: #ffffff;
 text-align: justify;
-pointer-events: none;
 }
 .ct{
     width: auto;
@@ -39,6 +44,11 @@ pointer-events: none;
     z-index: 0;
     border-radius: 10px;
 }
+.ct:hover~.barrato{
+    background-color: #00ffd5;
+    text-decoration: line-through;
+}
+
 .ct:before {
     content: '';
     background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
