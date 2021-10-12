@@ -12,11 +12,13 @@
     <script>
         function enter()
         {
-           document.getElementById("n1").style.textDecoration="line-through";
+           document.getElementById("n1").style.display="none";
+           document.getElementById("n2").style.display="inline-block";
         }
         function out()
         {
-        document.getElementById("n1").style.textDecoration="none";
+        document.getElementById("n1").style.display="inline-block";
+        document.getElementById("n2").style.display="none";
         }
     </script>
     <link href="style.css" rel="stylesheet">
@@ -26,8 +28,8 @@
     <script src="https://kit.fontawesome.com/066e2ea6c3.js" crossorigin="anonymous"></script>
 <body style="margin:0%;" class="bg">
 <div class="centra font">
-    <div class="ct" onmouseenter="enter()" onmouseleave="out()">
-        Hi, I'm Marco and i <z id="n1">study</z>&nbsp computer science at university of Milan Bicocca
+    <div class="ct" onmouseenter="enter()" onmouseleave="out()" onpointerleave="out()" onpointerenter="enter()">
+Hi, I'm Marco and i <z id="n1">study computer science</z><z1 id="n2" style="display:none">spend a lot of time</z1> at university
     </div>
 </div>
 </body>
