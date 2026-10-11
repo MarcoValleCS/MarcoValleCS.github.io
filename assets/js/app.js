@@ -1,53 +1,39 @@
 /* ==========================================================================
    Marco Valle — portfolio
-   app.js — i18n IT/EN, animazioni (Motion), canvas delle traiettorie,
-   terminale digitato, contatori, navigazione.
-   Nessun framework: JavaScript moderno che degrada con grazia.
+   app.js — i18n IT/EN, console statica, navigazione e lo "scope" dell'hero:
+   tracce ADS-B disegnate una sola volta all'avvio. Degrada con grazia.
    ========================================================================== */
 (() => {
   "use strict";
 
+  /* Con Lenis lo scroll si gestisce qui: niente ripristino automatico del
+     browser al reload, che altrimenti "litiga" con lo scroll fluido. */
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
-  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const motionOK = typeof window.Motion !== "undefined";
 
-  /* ------------------------------------------------------------------
-   * 1. Testi — dizionario italiano e inglese
-   * ------------------------------------------------------------------ */
   const CV = {
     it: "assets/cv/Marco_Valle_CV_IT.pdf",
     en: "assets/cv/Marco_Valle_CV_EN.pdf",
   };
 
+  /* ------------------------------------------------------------------
+   * 1. Testi
+   * ------------------------------------------------------------------ */
   const I18N = {
     it: {
       meta: {
-        title: "Marco Valle — Sviluppatore Back-End & Data Analyst",
+        title: "Marco Valle, sviluppatore back-end e data analyst",
         description:
-          "Sviluppatore back-end e data analyst: gestionale ERP in produzione (Django + PostgreSQL), Transformer PyTorch per le traiettorie aeree, IoT con ESP32. Python · Django · PyTorch · Docker · Linux.",
+          "Gestionale ERP in produzione con Django e PostgreSQL, Transformer in PyTorch per le traiettorie aeree su 65 milioni di record ADS-B, firmware ESP32 per sensori. Python, Django, PyTorch, Docker, Linux.",
       },
-      roles: [
-        "Sviluppatore Back-End",
-        "Data Analyst",
-        "Python · Django · PostgreSQL",
-        "Deep learning con PyTorch",
-        "Tinkering con ESP32 e sensori",
-      ],
-      terminal: [
-        { cmd: "python manage.py test", out: [
-          { text: "Ran 480 tests in 32.4s — OK (0 failures, 0 errors)", cls: "t-ok" },
-        ]},
-        { cmd: "docker compose up -d", out: [
-          { text: "✔ gunicorn · caddy · postgres — servizi attivi", cls: "t-dim" },
-        ]},
-        { cmd: "python flightprev/train.py --records 65M", out: [
-          { text: "epoch 42/42 — ADE 582 m (−30% vs baseline) ✔", cls: "t-ok" },
-        ]},
-      ],
       "a11y.skip": "Salta al contenuto",
       "a11y.lang": "Cambia lingua",
+      "a11y.lang.it": "Italiano",
+      "a11y.lang.en": "Inglese",
       "a11y.menu": "Apri il menu",
       "a11y.top": "Torna su",
       "nav.about": "Chi sono",
@@ -55,150 +41,128 @@
       "nav.projects": "Progetti",
       "nav.resume": "Percorso",
       "nav.contact": "Contatti",
-      "hero.eyebrow": "Ciao, sono 👋",
-      "hero.tagline":
-        "Costruisco software che lavora davvero: un gestionale ERP in produzione, un Transformer che prevede le rotte degli aerei e firmware per l'IoT.",
-      "hero.cta.projects": "Guarda i progetti",
+      "hero.role": "Sviluppatore back-end e data analyst a Bergamo.",
+      "hero.lead":
+        "Costruisco gestionali in Python e Django: quello di Aquaforma S.r.l. è in produzione da mesi. Fuori dall'orario di lavoro addestro modelli che prevedono dove andranno gli aerei.",
+      "hero.cta.projects": "Vedi i progetti",
       "hero.cta.cv": "Scarica il CV",
-      "hero.meta.location": "Bergamo, Italia",
-      "hero.meta.languages": "Italiano nativo · Inglese B2",
-      "hero.meta.availability": "In sede e in remoto",
-      "stats.tests": "test automatici",
-      "stats.records": "record ADS-B elaborati",
-      "stats.error": "errore medio vs baseline",
-      "stats.degree": "voto di laurea",
-      "about.eyebrow": "Chi sono",
-      "about.title": "Dal C++ ai Transformer",
+      "hero.spec.r1.label": "Gestionale aziendale",
+      "hero.spec.r1.value": "in produzione",
+      "hero.spec.r1.where": "Aquaforma S.r.l.",
+      "hero.spec.r2.label": "Record ADS-B elaborati",
+      "hero.spec.r2.value": "65 milioni",
+      "hero.spec.r3.label": "Errore medio di previsione",
+      "hero.spec.r3.value": "582 m, −30%",
+      "hero.spec.r4.label": "Test automatici",
+      "hero.spec.r4.value": "480+",
+      "hero.spec.r4.where": "CI a ogni push",
+      "about.title": "Chi sono",
       "about.p1":
-        "Sono di Bergamo e mi sono laureato in Informatica all'Università di Milano-Bicocca (99/110) con una tesi sui modelli non autoregressivi (Transformer) per la previsione di traiettorie aeree, dopo un semestre Erasmus+ a Łódź, in Polonia.",
+        "Mi sono laureato in Informatica all'Università di Milano-Bicocca nel 2025, con 99/110, discutendo una tesi sui modelli Transformer per la previsione delle traiettorie aeree. Prima della laurea ho passato un semestre Erasmus a Łódź, in Polonia.",
       "about.p2":
-        "In Aquaforma S.r.l. gestisco e personalizzo Odoo Enterprise e sviluppo il gestionale aziendale in Python/Django — anagrafiche, preventivi, ordini, magazzino, DDT e fatturazione elettronica SDI — oggi in produzione su VPS Linux con Docker, oltre 480 test automatici e CI su GitHub Actions.",
+        "In Aquaforma S.r.l., a Treviolo, gestisco l'IT aziendale e sviluppo il gestionale che oggi è il sistema di gestione principale: anagrafiche, preventivi, ordini, magazzino, DDT e fatturazione elettronica verso lo SDI. È in produzione su un VPS Linux con Docker, e 480 test automatici girano a ogni push.",
       "about.p3":
-        "Mi piacciono i progetti difficili e le soluzioni su misura: dal modello di deep learning addestrato su 65 milioni di record ADS-B al firmware ESP32 per monitorare la chimica dell'acqua della piscina. Quando c'è un problema concreto da risolvere, è lì che voglio essere.",
-      "about.facts.location": "Bergamo, Lombardia — disponibile in sede e da remoto",
-      "about.facts.degree": "Laurea in Informatica (L-31), 99/110 — Milano-Bicocca",
-      "about.facts.lang": "Italiano nativo · Inglese B2 certificato",
-      "about.facts.scout": "Educatore scout dal 2019, tra i ragazzi dai 15 ai 19 anni",
-      "skills.eyebrow": "Competenze",
-      "skills.title": "Con cosa lavoro ogni giorno",
-      "skills.sub": "Uno stack concreto: dal back-end ai dati, fino all'hardware.",
-      "skills.backend.title": "Back-End & Web",
-      "skills.data.title": "Dati & Machine Learning",
-      "skills.devops.title": "DevOps & Cloud",
-      "skills.embedded.title": "Embedded & Mobile",
-      "skills.misc.title": "Linguaggi & ERP",
-      "skills.misc.erp": "ERP & fatturazione SDI",
-      "projects.eyebrow": "Progetti",
-      "projects.title": "Cose vere, fatte per durare",
-      "projects.sub": "Non esperimenti da tutorial: software in produzione, ricerca e hardware.",
-      "projects.erp.badge1": "In produzione",
-      "projects.erp.badge2": "Full-stack",
-      "projects.erp.title": "Gestionale aziendale (ERP)",
-      "projects.erp.sub": "Aquaforma S.r.l. · 2026 — oggi",
+        "Il resto lo faccio fuori dall'orario di lavoro: 65 milioni di record ADS-B per insegnare a un modello dove andranno gli aerei, un firmware ESP32 che misura la chimica dell'acqua della piscina, un'app Android che comanda i relè. Mi interessano i problemi concreti, quelli che finiscono in produzione.",
+      "about.facts.seat": "Sede",
+      "about.facts.seat.v": "Bergamo, Lombardia",
+      "about.facts.lang": "Lingue",
+      "about.facts.lang.v": "Italiano nativo, inglese B2",
+      "about.facts.edu": "Formazione",
+      "about.facts.edu.v": "Laurea in Informatica, 99/110",
+      "about.facts.vol": "Volontariato",
+      "about.facts.vol.v": "Educatore scout dal 2019",
+      "console.title": "sessione locale",
+      "skills.title": "Competenze",
+      "skills.intro": "Gli strumenti con cui lavoro ogni giorno, in produzione o su questi progetti.",
+      "skills.r1.area": "Back-end e web",
+      "skills.r1.list": "Python, Django, PostgreSQL, SQLite, HTML, CSS",
+      "skills.r2.area": "Dati e machine learning",
+      "skills.r2.list": "PyTorch, NumPy, pandas, Matplotlib",
+      "skills.r3.area": "DevOps",
+      "skills.r3.list": "Docker e Docker Compose, Gunicorn, Caddy, Linux, Git, GitHub Actions",
+      "skills.r4.area": "Embedded e mobile",
+      "skills.r4.list": "ESP32 e Arduino (C/C++), I2C, ADC a 16 bit, Bluetooth, Kotlin, Android, Gradle",
+      "skills.r5.area": "Gestionale e integrazione",
+      "skills.r5.list": "Odoo (ERP/CRM), XML FatturaPA nel formato FPR12, PEC, server MCP",
+      "projects.title": "Progetti",
+      "projects.intro":
+        "Tre cose vere: un gestionale in produzione, un modello che è nato come tesi, un impianto che gestisce l'acqua di una piscina.",
+      "projects.erp.title": "Gestionale aziendale",
+      "projects.erp.meta": "Aquaforma S.r.l., Treviolo. In produzione dal 2026.",
       "projects.erp.p1":
-        "Gestionale completo in Python/Django + PostgreSQL: anagrafiche, catalogo, preventivi, ordini, magazzino, rifornimento fornitori, DDT e fatturazione elettronica verso lo SDI (XML FatturaPA FPR12 e trasmissione PEC).",
+        "Anagrafiche, catalogo, preventivi, ordini, magazzino, rifornimento fornitori, DDT e fatture: è il sistema con cui Aquaforma lavora tutti i giorni.",
       "projects.erp.p2":
-        "Deploy su VPS Linux con Docker Compose (Gunicorn, Caddy, HTTPS, backup automatici), 480+ test automatici con CI su GitHub Actions e server MCP in sola lettura per l'accesso ai dati tramite assistenti AI.",
-      "projects.erp.s1": "test automatici",
-      "projects.erp.s2": "GitHub Actions a ogni push",
-      "projects.erp.s3": "FPR12 + PEC, in produzione",
-      "projects.flight.badge1": "Deep learning",
-      "projects.flight.badge2": "Ricerca personale",
-      "projects.flight.title": "FlightPREV — Previsione di traiettorie aeree",
-      "projects.flight.sub": "Progetto personale · 2025 — 2026 · dalla tesi di laurea",
+        "La fatturazione elettronica genera l'XML FatturaPA nel formato FPR12 e lo trasmette allo SDI via PEC. Il deploy è su un VPS Linux con Docker Compose, 480 test automatici girano in CI a ogni push, e un server MCP in sola lettura espone i dati agli assistenti AI.",
+      "projects.flight.meta": "Progetto personale, 2025–2026. Nato dalla tesi di laurea.",
       "projects.flight.p1":
-        "Transformer in PyTorch che prevede la posizione degli aerei da 10 a 120 secondi, addestrato su oltre 65 milioni di record ADS-B con una pipeline completa: pulizia, segmentazione, ricampionamento e finestre scorrevoli.",
+        "Un Transformer in PyTorch prevede la posizione di un aereo da 10 a 120 secondi nel futuro. È addestrato su 65 milioni di record ADS-B passati attraverso una pipeline completa: pulizia, segmentazione, ricampionamento e finestre scorrevoli.",
       "projects.flight.p2":
-        "Errore medio (ADE) di 582 m contro gli 833 m della migliore baseline cinematica (−30%) grazie al residual learning; batte una reimplementazione di FlightBERT del 75–90% su tutti gli orizzonti.",
-      "projects.flight.s1": "record ADS-B elaborati",
-      "projects.flight.s2": "ADE medio (−30% vs baseline)",
-      "projects.flight.s3": "errore vs FlightBERT",
-      "projects.iot.badge1": "Hardware & mobile",
-      "projects.iot.badge2": "Progetto continuo",
-      "projects.iot.title": "IoT — Domotica e monitoraggio piscina",
+        "L'errore medio di previsione (ADE) è di 582 metri contro gli 833 della migliore baseline cinematica: il 30% in meno, grazie al residual learning. E la previsione batte anche una reimplementazione del paper FlightBERT, del 75–90% su tutti gli orizzonti.",
+      "projects.iot.title": "Domotica e monitoraggio piscina",
+      "projects.iot.meta": "Progetto continuo. Codice su richiesta.",
       "projects.iot.p1":
-        "Firmware ESP32 (C/C++/Arduino) per la gestione di relè e il monitoraggio della chimica dell'acqua con sensori I2C e ADC a 16 bit (pH, cloro, acido cianurico, salinità). App Android in Kotlin con controllo via Bluetooth e integrazione con Home Assistant.",
-      "projects.iot.note": "Codice disponibile su richiesta.",
-      "projects.others.title": "Altri progetti",
-      "projects.others.supercold": 'Un "SuperHot" in C++ puro, senza librerie grafiche.',
-      "projects.others.tris": "Tris in C++ puro, anche in single player.",
-      "projects.others.flashcard": "Flashcard di studio per i corsi di Informatica a Bicocca.",
-      "projects.others.open": "Apri su GitHub",
-      "projects.others.all": "Vedi tutti i repository",
-      "chart.title": "Previsione traiettoria · orizzonte +120 s",
-      "chart.now": "ora",
-      "chart.real": "reale",
-      "resume.eyebrow": "Percorso",
-      "resume.title": "Esperienza e formazione",
+        "Firmware ESP32 in C++ che comanda i relè dell'impianto e legge le sonde della chimica dell'acqua: pH, cloro, acido cianurico e salinità, su un ADC a 16 bit collegato via I2C.",
+      "projects.iot.p2":
+        "Un'app Android in Kotlin dialoga con il modulo via Bluetooth, e l'impianto è integrato con Home Assistant per la gestione di tutti i giorni.",
+      "art.erp.caption": "Fattura elettronica, XML FatturaPA (FPR12)",
+      "art.erp.stamp": "trasmessa allo SDI",
+      "art.flight.caption": "Una traccia reale e una previsione a 120 secondi.",
+      "art.flight.pred": "previsione +120 s",
+      "art.flight.err": "errore 582 m",
+      "art.flight.err.note": "(media dei test)",
+      "art.flight.legend.real": "traccia reale",
+      "art.flight.legend.pred": "previsione",
+      "art.flight.legend.cone": "incertezza",
+      "art.flight.chart.base": "baseline cinematica, 833 m",
+      "art.flight.note": "Curve illustrative. 833 m e 582 m sono le medie misurate nei test, da 10 a 120 secondi.",
+      "art.flight.pred120": "+120 s",
+      "art.flight.canvas.err": "errore 582 m",
+      "art.iot.caption": "Schema di massima dell'impianto.",
+      "art.iot.n0": "Sonde",
+      "art.iot.n1": "pH, cloro, salinità",
+      "art.iot.n4": "4 relè",
+      "art.iot.n4b": "pompe e luci",
+      "art.iot.n5": "App Android",
+      "projects.more.title": "Altri progetti",
+      "projects.more.supercold": "Un SuperHot in C++ puro, senza librerie grafiche.",
+      "projects.more.tris": "Tris in C++ puro, anche in single player.",
+      "projects.more.flashcard": "Flashcard di studio per i corsi di Informatica a Bicocca.",
+      "projects.more.all": "Tutti i repository su GitHub",
+      "resume.title": "Percorso",
       "resume.work": "Esperienza",
-      "resume.edu": "Formazione & volontariato",
+      "resume.edu": "Formazione e volontariato",
       "resume.aqua.when": "2026 — oggi",
-      "resume.aqua.role": "Socio e dipendente · Sviluppo software e gestione IT",
-      "resume.aqua.r1":
-        "Progettazione e sviluppo del gestionale aziendale (ERP) in Python/Django + PostgreSQL, in produzione su VPS Linux.",
-      "resume.aqua.r2":
-        "Deploy con Docker Compose (Gunicorn, Caddy, HTTPS) e backup automatici; 480+ test automatizzati e CI su GitHub Actions.",
-      "resume.aqua.r3":
-        "Gestione e personalizzazione di Odoo Enterprise (ERP/CRM); infrastruttura IT, rete e sito aziendale.",
-      "resume.pavis.when": "mar. 2023 — 2025",
-      "resume.pavis.role": "Installazione e manutenzione piscine",
-      "resume.pavis.r1":
-        "Manutenzione stagionale e analisi chimica delle acque (pH, cloro, acido cianurico, salinità); rapporti con clienti e fornitori.",
-      "resume.poppies.when": "feb. — giu. 2023",
-      "resume.poppies.role": "Assistenza e consulenza IT",
-      "resume.poppies.r1":
-        "Configurazione di servizi di rete on-premise; manutenzione e aggiornamento di postazioni di lavoro e componenti hardware.",
-      "resume.unimib.where": "Università di Milano-Bicocca",
-      "resume.unimib.when": "set. 2021 — mar. 2025",
-      "resume.unimib.role": "Laurea in Informatica (L-31) · 99/110",
-      "resume.unimib.r1":
-        "Tesi: modelli non autoregressivi (Transformer) per la previsione di traiettorie aeree, in PyTorch.",
-      "resume.erasmus.where": "Università di Łódź — Polonia",
-      "resume.erasmus.when": "ott. 2023 — mar. 2024",
-      "resume.erasmus.role": "Erasmus+",
-      "resume.erasmus.r1": "Un semestre di corsi ed esami in inglese in un ambiente internazionale.",
-      "resume.scout.where": "Educatore scout — Bergamo",
+      "resume.aqua.d":
+        "Socio e dipendente. Sviluppo il gestionale aziendale, gestisco Odoo Enterprise, l'infrastruttura IT, la rete e il sito.",
+      "resume.pavis.when": "mar 2023 — 2025",
+      "resume.pavis.d": "Installazione e manutenzione di piscine: analisi chimica delle acque, rapporti con clienti e fornitori.",
+      "resume.poppies.when": "feb — giu 2023",
+      "resume.poppies.d": "Assistenza e consulenza IT: rete on-premise, postazioni di lavoro e hardware.",
+      "resume.unimib.when": "2021 — 2025",
+      "resume.unimib.d": "Laurea in Informatica, 99/110. Tesi sui modelli non autoregressivi per la previsione delle traiettorie aeree.",
+      "resume.erasmus.when": "ott 2023 — mar 2024",
+      "resume.erasmus.h": "Università di Łódź, Polonia",
+      "resume.erasmus.d": "Erasmus+ (un semestre), corsi ed esami in inglese.",
       "resume.scout.when": "2019 — oggi",
-      "resume.scout.role": "Federazione Scout Europa",
-      "resume.scout.r1":
-        "Progetto e conduco attività educative per ragazzi dai 15 ai 19 anni: leadership e lavoro di squadra.",
-      "contact.eyebrow": "Contatti",
-      "contact.title": "Lavoriamo insieme",
-      "contact.sub": "Cerchi uno sviluppatore back-end o un data analyst? Scrivimi: rispondo a tutti.",
-      "contact.cv": "Curriculum vitae",
-      "contact.cv.it": "Italiano · PDF",
-      "contact.cv.en": "English · PDF",
-      "footer.rights": "Tutti i diritti riservati",
-      "footer.built": "Fatto a mano con HTML, CSS e JavaScript",
+      "resume.scout.d": "Attività educative con ragazzi dai 15 ai 19 anni: leadership e lavoro di squadra.",
+      "contact.title": "Contatti",
+      "contact.lead": "Se hai una posizione aperta o un progetto su cui lavorare, scrivimi. Rispondo a tutti.",
+      "contact.cv.it": "CV in italiano",
+      "contact.cv.en": "CV in inglese",
+      "footer.built": "HTML, CSS e JavaScript scritti a mano. Animazioni con Motion, scroll con Lenis.",
       "footer.source": "codice sorgente",
     },
 
     en: {
       meta: {
-        title: "Marco Valle — Back-End Developer & Data Analyst",
+        title: "Marco Valle, back-end developer and data analyst",
         description:
-          "Back-end developer and data analyst: ERP system running in production (Django + PostgreSQL), PyTorch Transformer for aircraft trajectories, IoT with ESP32. Python · Django · PyTorch · Docker · Linux.",
+          "ERP system in production with Django and PostgreSQL, a PyTorch Transformer predicting aircraft trajectories from 65 million ADS-B records, ESP32 sensor firmware. Python, Django, PyTorch, Docker, Linux.",
       },
-      roles: [
-        "Back-End Developer",
-        "Data Analyst",
-        "Python · Django · PostgreSQL",
-        "Deep learning with PyTorch",
-        "Tinkering with ESP32 and sensors",
-      ],
-      terminal: [
-        { cmd: "python manage.py test", out: [
-          { text: "Ran 480 tests in 32.4s — OK (0 failures, 0 errors)", cls: "t-ok" },
-        ]},
-        { cmd: "docker compose up -d", out: [
-          { text: "✔ gunicorn · caddy · postgres — services up", cls: "t-dim" },
-        ]},
-        { cmd: "python flightprev/train.py --records 65M", out: [
-          { text: "epoch 42/42 — ADE 582 m (−30% vs baseline) ✔", cls: "t-ok" },
-        ]},
-      ],
       "a11y.skip": "Skip to content",
       "a11y.lang": "Switch language",
+      "a11y.lang.it": "Italian",
+      "a11y.lang.en": "English",
       "a11y.menu": "Open menu",
       "a11y.top": "Back to top",
       "nav.about": "About",
@@ -206,123 +170,137 @@
       "nav.projects": "Projects",
       "nav.resume": "Resume",
       "nav.contact": "Contact",
-      "hero.eyebrow": "Hi, I'm 👋",
-      "hero.tagline":
-        "I build software that actually works: an ERP system running in production, a Transformer predicting aircraft trajectories, and IoT firmware.",
-      "hero.cta.projects": "View projects",
-      "hero.cta.cv": "Download CV",
-      "hero.meta.location": "Bergamo, Italy",
-      "hero.meta.languages": "Italian (native) · English B2",
-      "hero.meta.availability": "On-site and remote",
-      "stats.tests": "automated tests",
-      "stats.records": "ADS-B records processed",
-      "stats.error": "average error vs baseline",
-      "stats.degree": "degree score",
-      "about.eyebrow": "About me",
-      "about.title": "From C++ to Transformers",
+      "hero.role": "Back-end developer and data analyst, based in Bergamo, Italy.",
+      "hero.lead":
+        "I build management systems in Python and Django: the one running at Aquaforma S.r.l. is in production. Off the clock I train models that predict where aircraft will be.",
+      "hero.cta.projects": "See the projects",
+      "hero.cta.cv": "Download the CV",
+      "hero.spec.r1.label": "Business management system",
+      "hero.spec.r1.value": "in production",
+      "hero.spec.r1.where": "Aquaforma S.r.l.",
+      "hero.spec.r2.label": "ADS-B records processed",
+      "hero.spec.r2.value": "65 million",
+      "hero.spec.r3.label": "Average prediction error",
+      "hero.spec.r3.value": "582 m, −30%",
+      "hero.spec.r4.label": "Automated tests",
+      "hero.spec.r4.value": "480+",
+      "hero.spec.r4.where": "CI on every push",
+      "about.title": "About me",
       "about.p1":
-        "I'm from Bergamo, Italy. I hold a BSc in Computer Science from the University of Milano-Bicocca (99/110) with a thesis on non-autoregressive (Transformer) models for air traffic trajectory prediction, after a six-month Erasmus+ exchange in Łódź, Poland.",
+        "I graduated in Computer Science at the University of Milano-Bicocca in 2025, with 99/110, defending a thesis on Transformer models for aircraft trajectory prediction. Before graduating I spent one Erasmus semester in Łódź, Poland.",
       "about.p2":
-        "At Aquaforma S.r.l. I administer and customize Odoo Enterprise and I develop the in-house ERP in Python/Django — contacts, quotes, orders, inventory, delivery notes and Italian e-invoicing (SDI) — now in production on a Linux VPS with Docker, 480+ automated tests and CI on GitHub Actions.",
+        "At Aquaforma S.r.l., in Treviolo, I run the company IT and develop the management system that is now the core of the business: contacts, quotes, orders, inventory, delivery notes and Italian e-invoicing towards SDI. It runs in production on a Linux VPS with Docker, and 480 automated tests run on every push.",
       "about.p3":
-        "I like hard projects and tailored solutions: from deep learning models trained on 65 million ADS-B records to ESP32 firmware monitoring pool water chemistry. When there's a concrete problem to solve, that's where I want to be.",
-      "about.facts.location": "Bergamo, Lombardy — available on-site and remotely",
-      "about.facts.degree": "BSc in Computer Science (L-31), 99/110 — Milano-Bicocca",
-      "about.facts.lang": "Italian (native) · English B2 certified",
-      "about.facts.scout": "Scout educator since 2019, with teens aged 15 to 19",
-      "skills.eyebrow": "Skills",
-      "skills.title": "What I work with every day",
-      "skills.sub": "A pragmatic stack: from back-end to data, all the way down to hardware.",
-      "skills.backend.title": "Back-End & Web",
-      "skills.data.title": "Data & Machine Learning",
-      "skills.devops.title": "DevOps & Cloud",
-      "skills.embedded.title": "Embedded & Mobile",
-      "skills.misc.title": "Languages & ERP",
-      "skills.misc.erp": "ERP & SDI e-invoicing",
-      "projects.eyebrow": "Projects",
-      "projects.title": "Real things, built to last",
-      "projects.sub": "Not tutorial experiments: production software, research and hardware.",
-      "projects.erp.badge1": "In production",
-      "projects.erp.badge2": "Full-stack",
-      "projects.erp.title": "Business Management System (ERP)",
-      "projects.erp.sub": "Aquaforma S.r.l. · 2026 — present",
+        "The rest happens off the clock: 65 million ADS-B records to teach a model where aircraft will be, ESP32 firmware that measures pool water chemistry, an Android app driving the relays. I care about concrete problems, the ones that end up in production.",
+      "about.facts.seat": "Based in",
+      "about.facts.seat.v": "Bergamo, Lombardy",
+      "about.facts.lang": "Languages",
+      "about.facts.lang.v": "Italian (native), English B2",
+      "about.facts.edu": "Education",
+      "about.facts.edu.v": "BSc in Computer Science, 99/110",
+      "about.facts.vol": "Volunteering",
+      "about.facts.vol.v": "Scout educator since 2019",
+      "console.title": "local session",
+      "skills.title": "Skills",
+      "skills.intro": "The tools I work with every day, in production or on the projects below.",
+      "skills.r1.area": "Back-end and web",
+      "skills.r1.list": "Python, Django, PostgreSQL, SQLite, HTML, CSS",
+      "skills.r2.area": "Data and machine learning",
+      "skills.r2.list": "PyTorch, NumPy, pandas, Matplotlib",
+      "skills.r3.area": "DevOps",
+      "skills.r3.list": "Docker and Docker Compose, Gunicorn, Caddy, Linux, Git, GitHub Actions",
+      "skills.r4.area": "Embedded and mobile",
+      "skills.r4.list": "ESP32 and Arduino (C/C++), I2C, 16-bit ADC, Bluetooth, Kotlin, Android, Gradle",
+      "skills.r5.area": "Business systems and integration",
+      "skills.r5.list": "Odoo (ERP/CRM), FatturaPA XML, FPR12 format, PEC, MCP server",
+      "projects.title": "Projects",
+      "projects.intro":
+        "Three real things: a system in production, a model that started as a thesis, a plant that manages a swimming pool's water.",
+      "projects.erp.title": "Business management system",
+      "projects.erp.meta": "Aquaforma S.r.l., Treviolo. In production since 2026.",
       "projects.erp.p1":
-        "Full business management system in Python/Django + PostgreSQL: contacts, catalogue, quotes, orders, inventory, supplier replenishment, delivery notes and Italian e-invoicing towards SDI (FatturaPA FPR12 XML and PEC transmission).",
+        "Contacts, catalogue, quotes, orders, inventory, supplier replenishment, delivery notes and invoices: it is the system Aquaforma works with every day.",
       "projects.erp.p2":
-        "Deployed on a Linux VPS with Docker Compose (Gunicorn, Caddy, HTTPS, automatic backups), 480+ automated tests with CI on GitHub Actions and a read-only MCP server for AI-assisted data access.",
-      "projects.erp.s1": "automated tests",
-      "projects.erp.s2": "GitHub Actions on every push",
-      "projects.erp.s3": "FPR12 + PEC, in production",
-      "projects.flight.badge1": "Deep learning",
-      "projects.flight.badge2": "Personal research",
-      "projects.flight.title": "FlightPREV — Aircraft Trajectory Prediction",
-      "projects.flight.sub": "Personal project · 2025 — 2026 · from my BSc thesis",
+        "The e-invoicing module generates FatturaPA XML in the FPR12 format and transmits it to SDI over PEC. It is deployed on a Linux VPS with Docker Compose, 480 automated tests run in CI on every push, and a read-only MCP server exposes the data to AI assistants.",
+      "projects.flight.meta": "Personal project, 2025–2026. Born from my BSc thesis.",
       "projects.flight.p1":
-        "PyTorch Transformer predicting aircraft positions 10 to 120 seconds ahead, trained on over 65 million ADS-B records with a full data pipeline: cleaning, segmentation, resampling and sliding windows.",
+        "A PyTorch Transformer predicts where an aircraft will be from 10 to 120 seconds ahead. It is trained on 65 million ADS-B records through a full pipeline: cleaning, segmentation, resampling and sliding windows.",
       "projects.flight.p2":
-        "Average error (ADE) of 582 m against 833 m of the best kinematic baseline (−30%) via residual learning; it outperforms a FlightBERT reimplementation by 75–90% at all horizons.",
-      "projects.flight.s1": "ADS-B records processed",
-      "projects.flight.s2": "average ADE (−30% vs baseline)",
-      "projects.flight.s3": "error vs FlightBERT",
-      "projects.iot.badge1": "Hardware & mobile",
-      "projects.iot.badge2": "Ongoing project",
-      "projects.iot.title": "IoT — Home automation and pool monitoring",
+        "The average prediction error (ADE) is 582 metres against 833 for the best kinematic baseline: 30% lower, thanks to residual learning. It also outperforms a reimplementation of the FlightBERT paper by 75–90% at all horizons.",
+      "projects.iot.title": "Home automation and pool monitoring",
+      "projects.iot.meta": "Ongoing project. Code available on request.",
       "projects.iot.p1":
-        "ESP32 firmware (C/C++/Arduino) for relay control and water-chemistry monitoring with I2C sensors and a 16-bit ADC (pH, chlorine, cyanuric acid, salinity). Kotlin Android app with Bluetooth control and Home Assistant integration.",
-      "projects.iot.note": "Code available on request.",
-      "projects.others.title": "Other projects",
-      "projects.others.supercold": 'A "SuperHot" clone in pure C++, no graphics libraries.',
-      "projects.others.tris": "Tic-tac-toe in pure C++, with a single-player mode.",
-      "projects.others.flashcard": "Study flashcards for Computer Science courses at Bicocca.",
-      "projects.others.open": "Open on GitHub",
-      "projects.others.all": "See all repositories",
-      "chart.title": "Trajectory prediction · horizon +120 s",
-      "chart.now": "now",
-      "chart.real": "actual",
-      "resume.eyebrow": "Resume",
-      "resume.title": "Experience and education",
+        "ESP32 firmware in C++ that drives the plant relays and reads the water chemistry probes: pH, chlorine, cyanuric acid and salinity, on a 16-bit ADC over I2C.",
+      "projects.iot.p2":
+        "A Kotlin Android app talks to the module over Bluetooth, and the plant is integrated with Home Assistant for everyday use.",
+      "art.erp.caption": "E-invoice, FatturaPA XML (FPR12)",
+      "art.erp.stamp": "sent to SDI",
+      "art.flight.caption": "A real track and a 120-second prediction.",
+      "art.flight.pred": "prediction +120 s",
+      "art.flight.err": "error 582 m",
+      "art.flight.err.note": "(test average)",
+      "art.flight.legend.real": "real track",
+      "art.flight.legend.pred": "prediction",
+      "art.flight.legend.cone": "uncertainty",
+      "art.flight.chart.base": "kinematic baseline, 833 m",
+      "art.flight.note": "Illustrative curves. 833 m and 582 m are the averages measured in testing, from 10 to 120 seconds.",
+      "art.flight.pred120": "+120 s",
+      "art.flight.canvas.err": "error 582 m",
+      "art.iot.caption": "A rough schematic of the plant.",
+      "art.iot.n0": "Probes",
+      "art.iot.n1": "pH, chlorine, salinity",
+      "art.iot.n4": "4 relays",
+      "art.iot.n4b": "pumps and lights",
+      "art.iot.n5": "Android app",
+      "projects.more.title": "Other projects",
+      "projects.more.supercold": "A SuperHot clone in pure C++, with no graphics libraries.",
+      "projects.more.tris": "Tic-tac-toe in pure C++, with a single-player mode.",
+      "projects.more.flashcard": "Study flashcards for Computer Science courses at Bicocca.",
+      "projects.more.all": "All repositories on GitHub",
+      "resume.title": "Resume",
       "resume.work": "Experience",
-      "resume.edu": "Education & volunteering",
+      "resume.edu": "Education and volunteering",
       "resume.aqua.when": "2026 — present",
-      "resume.aqua.role": "Partner and employee · Software development and IT management",
-      "resume.aqua.r1":
-        "Designed and built the in-house ERP in Python/Django + PostgreSQL, now in production on a Linux VPS.",
-      "resume.aqua.r2":
-        "Deployment with Docker Compose (Gunicorn, Caddy, HTTPS) and automatic backups; 480+ automated tests and CI on GitHub Actions.",
-      "resume.aqua.r3":
-        "Administer and customize Odoo Enterprise (ERP/CRM); IT infrastructure, network and corporate website.",
-      "resume.pavis.when": "Mar. 2023 — 2025",
-      "resume.pavis.role": "Swimming pool installation and maintenance",
-      "resume.pavis.r1":
-        "Seasonal maintenance and water-chemistry analysis (pH, chlorine, cyanuric acid, salinity); customer and supplier relations.",
-      "resume.poppies.when": "Feb. — Jun. 2023",
-      "resume.poppies.role": "IT support and consulting",
-      "resume.poppies.r1":
-        "Configured on-premise network services; maintained and upgraded workstations and hardware.",
-      "resume.unimib.where": "University of Milano-Bicocca",
-      "resume.unimib.when": "Sep. 2021 — Mar. 2025",
-      "resume.unimib.role": "BSc in Computer Science (L-31) · 99/110",
-      "resume.unimib.r1":
-        "Thesis: non-autoregressive models (Transformer) for air traffic trajectory prediction, in PyTorch.",
-      "resume.erasmus.where": "University of Łódź — Poland",
-      "resume.erasmus.when": "Oct. 2023 — Mar. 2024",
-      "resume.erasmus.role": "Erasmus+",
-      "resume.erasmus.r1": "One semester of courses and exams in English in an international environment.",
-      "resume.scout.where": "Scout educator — Bergamo",
+      "resume.aqua.d":
+        "Partner and employee. I develop the in-house management system and run Odoo Enterprise, the IT infrastructure, the network and the website.",
+      "resume.pavis.when": "Mar 2023 — 2025",
+      "resume.pavis.d": "Swimming pool installation and maintenance: water chemistry analysis, customer and supplier relations.",
+      "resume.poppies.when": "Feb — Jun 2023",
+      "resume.poppies.d": "IT support and consulting: on-premise network, workstations and hardware.",
+      "resume.unimib.when": "2021 — 2025",
+      "resume.unimib.d": "BSc in Computer Science, 99/110. Thesis on non-autoregressive models for aircraft trajectory prediction.",
+      "resume.erasmus.when": "Oct 2023 — Mar 2024",
+      "resume.erasmus.h": "University of Łódź, Poland",
+      "resume.erasmus.d": "Erasmus+ (one semester), courses and exams in English.",
       "resume.scout.when": "2019 — present",
-      "resume.scout.role": "Federazione Scout Europa",
-      "resume.scout.r1":
-        "I plan and lead educational activities for teens aged 15–19: leadership and teamwork.",
-      "contact.eyebrow": "Contact",
-      "contact.title": "Let's work together",
-      "contact.sub": "Looking for a back-end developer or a data analyst? Write me: I answer everyone.",
-      "contact.cv": "Curriculum vitae",
-      "contact.cv.it": "Italiano · PDF",
-      "contact.cv.en": "English · PDF",
-      "footer.rights": "All rights reserved",
-      "footer.built": "Handcrafted with HTML, CSS and JavaScript",
+      "resume.scout.d": "Educational activities with teens aged 15 to 19: leadership and teamwork.",
+      "contact.title": "Contact",
+      "contact.lead": "If you have an open role or a project to work on, write me. I answer everyone.",
+      "contact.cv.it": "CV in Italian",
+      "contact.cv.en": "CV in English",
+      "footer.built": "HTML, CSS and JavaScript, written by hand. Motion for animation, Lenis for scrolling.",
       "footer.source": "source code",
     },
+  };
+
+  /* Console: output mostrato in modo statico, per lingua */
+  const CONSOLE = {
+    it: [
+      { cmd: "python manage.py test", out: [{ t: "Ran 480 tests in 32.4s" }, { t: "OK", ok: true }] },
+      { cmd: "docker compose up -d", out: [{ t: "gunicorn, caddy, postgres, worker: avviati" }] },
+      {
+        cmd: "python train.py --records 65M --encoder transformer",
+        out: [{ t: "epoca 42/42, ADE 582 m (−30% vs baseline)" }],
+      },
+    ],
+    en: [
+      { cmd: "python manage.py test", out: [{ t: "Ran 480 tests in 32.4s" }, { t: "OK", ok: true }] },
+      { cmd: "docker compose up -d", out: [{ t: "gunicorn, caddy, postgres, worker: up" }] },
+      {
+        cmd: "python train.py --records 65M --encoder transformer",
+        out: [{ t: "epoch 42/42, ADE 582 m (−30% vs baseline)" }],
+      },
+    ],
   };
 
   const STORE_KEY = "mv-lang";
@@ -337,111 +315,25 @@
   };
 
   let lang = getStoredLang();
+  let redrawScope = null;
 
-  /* ------------------------------------------------------------------
-   * 2. Terminale animato
-   * ------------------------------------------------------------------ */
-  const terminalBody = $("#terminal-body");
-  let terminalPlayed = false;
+  const consoleBody = $("#console-body");
 
-  function renderTerminalInstant() {
-    if (!terminalBody) return;
-    const lines = I18N[lang].terminal;
+  function renderConsole() {
+    if (!consoleBody) return;
     let html = "";
-    lines.forEach((line) => {
-      html += `<span class="t-prompt">$ </span>${line.cmd}\n`;
-      line.out.forEach((o) => {
-        html += `<span class="${o.cls}">${o.text}</span>\n`;
+    CONSOLE[lang].forEach((block, i) => {
+      if (i > 0) html += "\n";
+      html += `<span class="c-prompt">$</span> ${block.cmd}\n`;
+      block.out.forEach((line) => {
+        html += line.ok ? `<span class="c-ok">${line.t}</span>\n` : `${line.t}\n`;
       });
     });
-    terminalBody.innerHTML = html + '<span class="caret"></span>';
-    terminalPlayed = true;
-  }
-
-  async function typeTerminal() {
-    if (!terminalBody || terminalPlayed) return;
-    terminalPlayed = true;
-    if (reduced) {
-      renderTerminalInstant();
-      return;
-    }
-    const lines = I18N[lang].terminal;
-    terminalBody.innerHTML = "";
-    const caret = document.createElement("span");
-    caret.className = "caret";
-    terminalBody.appendChild(caret);
-
-    const type = async (text, cls, speed = 24) => {
-      const span = document.createElement(cls ? "span" : "span");
-      if (cls) span.className = cls;
-      terminalBody.insertBefore(span, caret);
-      for (const ch of text) {
-        span.textContent += ch;
-        await wait(speed);
-      }
-    };
-
-    for (const line of lines) {
-      await type("$ ", "t-prompt", 10);
-      await type(line.cmd, "", 22);
-      await type("\n", "", 0);
-      await wait(260);
-      for (const o of line.out) {
-        await type(o.text, o.cls, 4);
-        await type("\n", "", 0);
-      }
-      await wait(420);
-    }
+    consoleBody.innerHTML = html.trimEnd();
   }
 
   /* ------------------------------------------------------------------
-   * 3. Ruoli digitati nell'hero
-   * ------------------------------------------------------------------ */
-  const roleEl = $("#role-typed");
-  let roleTimer = null;
-
-  function startRoles() {
-    if (!roleEl) return;
-    if (roleTimer) clearTimeout(roleTimer);
-    const words = I18N[lang].roles;
-
-    if (reduced) {
-      roleEl.textContent = words[0];
-      return;
-    }
-
-    let wordIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
-
-    const tick = () => {
-      const word = words[wordIndex % words.length];
-      if (!deleting) {
-        charIndex++;
-        roleEl.textContent = word.slice(0, charIndex);
-        if (charIndex === word.length) {
-          deleting = true;
-          roleTimer = setTimeout(tick, 2100);
-          return;
-        }
-        roleTimer = setTimeout(tick, 42);
-      } else {
-        charIndex--;
-        roleEl.textContent = word.slice(0, charIndex);
-        if (charIndex === 0) {
-          deleting = false;
-          wordIndex++;
-          roleTimer = setTimeout(tick, 380);
-          return;
-        }
-        roleTimer = setTimeout(tick, 20);
-      }
-    };
-    tick();
-  }
-
-  /* ------------------------------------------------------------------
-   * 4. Applicazione della lingua
+   * 2. Lingua
    * ------------------------------------------------------------------ */
   function applyLang(next) {
     lang = next;
@@ -470,34 +362,30 @@
         });
     });
 
+    $$("[data-lang]").forEach((el) => {
+      el.setAttribute("aria-pressed", String(el.getAttribute("data-lang") === lang));
+    });
+
     const cvHero = $("#cv-hero");
     if (cvHero) cvHero.setAttribute("href", CV[lang]);
 
-    $$("[data-lang-opt]").forEach((el) => {
-      el.classList.toggle("is-active", el.getAttribute("data-lang-opt") === lang);
-    });
-
-    /* Il terminale non si ri-digita a metà: si ri-renderizza subito */
-    if (terminalPlayed) renderTerminalInstant();
-
-    startRoles();
+    renderConsole();
+    if (typeof redrawScope === "function") redrawScope();
   }
 
   /* ------------------------------------------------------------------
-   * 5. Navigazione: header, progress, menu mobile, link attivo
+   * 3. Navigazione
    * ------------------------------------------------------------------ */
   const header = $("#site-header");
   const progress = $("#progress");
   const toTop = $("#to-top");
   const burger = $("#burger");
-  const navLinks = $("#nav-links");
 
   function onScroll() {
     const y = window.scrollY;
     const max = document.documentElement.scrollHeight - window.innerHeight;
     if (progress) progress.style.setProperty("--progress", `${max > 0 ? (y / max) * 100 : 0}%`);
-    header?.classList.toggle("scrolled", y > 12);
-    toTop?.classList.toggle("show", y > 620);
+    toTop?.classList.toggle("show", y > 640);
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
@@ -526,9 +414,19 @@
   if (typeof window.Lenis !== "undefined" && !reduced) {
     lenis = new window.Lenis({ autoRaf: true, lerp: 0.11 });
     document.documentElement.style.scrollBehavior = "auto";
+    /* Allinea Lenis alla posizione reale della pagina (es. reload a metà
+       pagina): evita che le due "scroll" si contendano la posizione. */
+    const syncLenis = () => {
+      try {
+        lenis.scrollTo(window.scrollY, { immediate: true, force: true });
+      } catch (_) {
+        /* niente: Lenis non accetta l'opzione in questa versione */
+      }
+    };
+    requestAnimationFrame(syncLenis);
+    window.addEventListener("load", () => setTimeout(syncLenis, 60), { once: true });
   }
 
-  /* Link interni: chiudi menu e scrolla con Lenis se attivo */
   document.addEventListener("click", (e) => {
     const link = e.target.closest('a[href^="#"]');
     if (!link) return;
@@ -539,18 +437,18 @@
     e.preventDefault();
     closeMenu();
     if (lenis) {
-      lenis.scrollTo(target, { offset: -78 });
+      lenis.scrollTo(target, { offset: -74 });
     } else {
       target.scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     }
     try {
       history.replaceState(null, "", id);
     } catch (_) {
-      /* file:// o ambienti senza history */
+      /* file:// */
     }
   });
 
-  /* Link attivo nella navbar */
+  /* Voce attiva */
   const sections = $$("main section[id]");
   const navAnchors = $$(".nav-links a[data-nav]");
   if ("IntersectionObserver" in window && sections.length) {
@@ -570,306 +468,293 @@
   }
 
   /* ------------------------------------------------------------------
-   * 6. Rivelazioni, contatori, trigger .play
+   * 4. L'unico momento orchestrato: l'apertura
+   *    (testo che entra come un blocco unico + scope che si disegna)
    * ------------------------------------------------------------------ */
-  const revealEls = $$("[data-reveal]");
-  const counters = $$(".count");
-  const media = $$(".project-media");
-
-  const runCounter = (el) => {
-    if (el.dataset.counted) return;
-    el.dataset.counted = "1";
-    const target = Number(el.getAttribute("data-count") || "0");
-    if (reduced) {
-      el.textContent = String(target);
-      return;
-    }
-    const duration = 1500;
-    const t0 = performance.now();
-    const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const step = (now) => {
-      const p = Math.min((now - t0) / duration, 1);
-      el.textContent = String(Math.round(ease(p) * target));
-      if (p < 1) requestAnimationFrame(step);
+  const heroInner = $(".hero-inner");
+  if (heroInner && motionOK && !reduced) {
+    heroInner.style.opacity = "0";
+    heroInner.style.transform = "translateY(14px)";
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      heroInner.style.opacity = "1";
+      heroInner.style.transform = "none";
     };
-    requestAnimationFrame(step);
-  };
-
-  if (motionOK && !reduced) {
     try {
-      const { animate, inView } = window.Motion;
-
-      revealEls.forEach((el) => {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(26px)";
-      });
-
-      inView(
-        revealEls,
-        (el) => {
-          animate(
-            el,
-            { opacity: [0, 1], transform: ["translateY(26px)", "translateY(0px)"] },
-            { duration: 0.72, easing: [0.2, 0.7, 0.2, 1] }
-          ).finished.then(() => {
-            el.style.opacity = "1";
-            el.style.transform = "none";
-            el.classList.add("is-in");
-          });
-        },
-        { margin: "0px 0px -70px 0px" }
-      );
-
-      /* Ingresso dell'hero, in sequenza */
-      const heroEls = $$("[data-animate]");
-      heroEls.forEach((el, i) => {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(22px)";
-        animate(
-          el,
-          { opacity: [0, 1], transform: ["translateY(22px)", "translateY(0px)"] },
-          { duration: 0.8, delay: i * 0.09, easing: [0.2, 0.7, 0.2, 1] }
-        ).finished.then(() => {
-          el.style.opacity = "1";
-          el.style.transform = "none";
-        });
-      });
-      onScroll();
-
-      /* Rete di sicurezza: se qualcosa va storto, nessun contenuto resta nascosto */
-      setTimeout(() => {
-        revealEls.forEach((el) => {
-          if (parseFloat(getComputedStyle(el).opacity) < 0.05) {
-            const r = el.getBoundingClientRect();
-            if (r.top < window.innerHeight && r.bottom > 0) {
-              el.style.opacity = "1";
-              el.style.transform = "none";
-              el.classList.add("is-in");
-            }
-          }
-        });
-      }, 3500);
+      window.Motion
+        .animate(
+          heroInner,
+          { opacity: [0, 1], transform: ["translateY(14px)", "translateY(0px)"] },
+          { duration: 0.7, easing: [0.2, 0.7, 0.2, 1] }
+        )
+        .finished.then(finish);
+      setTimeout(finish, 1600);
     } catch (_) {
-      revealEls.forEach((el) => {
-        el.style.opacity = "";
-        el.style.transform = "";
-        el.classList.add("is-in");
-      });
+      finish();
     }
-  }
-
-  /* Fallback senza Motion: si mostra tutto subito */
-  if (!motionOK || reduced) {
-    $$("[data-animate]").forEach((el) => {
-      el.style.opacity = "";
-      el.style.transform = "";
-    });
-  }
-
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const el = entry.target;
-          el.classList.add("is-in", "play");
-          if (el.matches(".terminal")) typeTerminal();
-          io.unobserve(el);
-        });
-      },
-      { threshold: 0.25, rootMargin: "0px 0px -60px 0px" }
-    );
-
-    [...revealEls, ...media, $(".terminal")].filter(Boolean).forEach((el) => io.observe(el));
-
-    /* I contatori della fascia numeri */
-    const statsIO = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            counters.filter((c) => entry.target.contains(c)).forEach(runCounter);
-            statsIO.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.35 }
-    );
-    $("#stats") && statsIO.observe($("#stats"));
-  } else {
-    counters.forEach((c) => (c.textContent = c.getAttribute("data-count")));
-    media.forEach((el) => el.classList.add("play"));
-    typeTerminal();
   }
 
   /* ------------------------------------------------------------------
-   * 7. Canvas — stelle e traiettorie aeree
+   * 5. Lo scope: tracce ADS-B disegnate una volta, poi immobili.
+   *    Coordinate di progetto (1200×760) ancorate al bordo destro,
+   *    così il testo dell'hero resta sempre libero a sinistra.
    * ------------------------------------------------------------------ */
-  const canvas = $("#sky");
+  const canvas = $("#scope");
   if (canvas && canvas.getContext) {
     const ctx = canvas.getContext("2d");
+    const PAPER = "239, 230, 212";
+    const BRASS = "233, 161, 59";
+    const SIGNAL = "220, 100, 64";
+
+    const tracks = [
+      /* [punti], alpha, larghezza, inizio, durata */
+      { pts: [[640, 110], [790, 140], [930, 190], [1080, 262]], a: 0.3, w: 1.5, t0: 500, dt: 700 },
+      { pts: [[1180, 70], [1080, 160], [980, 250], [910, 318]], a: 0.26, w: 1.5, t0: 700, dt: 700 },
+      { pts: [[660, 700], [810, 688], [960, 662], [1130, 640]], a: 0.28, w: 1.5, t0: 900, dt: 750 },
+      { pts: [[140, 70], [330, 100], [520, 128]], a: 0.22, w: 1.5, t0: 1050, dt: 650 },
+    ];
+    const hero = {
+      past: [[660, 620], [740, 545], [815, 465], [895, 385]],
+      pred: { p0: [895, 385], c: [1010, 300], p1: [1120, 205] },
+      actual: { p0: [895, 385], c: [1005, 318], p1: [1082, 248] },
+      cone: [[895, 385], [1120, 180], [1120, 232]],
+      error: { a: [1120, 205], b: [1082, 248] },
+      label: "MV582  FL340  458 kt",
+      labelEnd: [878, 352],
+    };
+    const bottomLabel = { text: "FB218  118 kt", pos: [700, 660], t0: 1900 };
+    const END = 3400;
+
     let W = 0;
     let H = 0;
-    let stars = [];
-    let planes = [];
-    let running = false;
-    let rafId = null;
     let dpr = 1;
-    const rand = (min, max) => min + Math.random() * (max - min);
+    let rafId = null;
+    let started = false;
+    let done = false;
+    let lastT = 0;
 
-    const makeStars = (n) => {
-      stars = Array.from({ length: n }, () => ({
-        x: Math.random(),
-        y: Math.random(),
-        r: rand(0.4, 1.5),
-        phase: rand(0, Math.PI * 2),
-        speed: rand(0.3, 1.1),
-      }));
-    };
+    const ease = (t) => 1 - Math.pow(1 - Math.min(Math.max(t, 0), 1), 3);
+    const prog = (t, start, dur) => ease((t - start) / dur);
 
-    const makePlane = (seed) => {
-      const fromLeft = Math.random() > 0.45;
-      const start = fromLeft
-        ? { x: rand(-0.05, 0.25), y: rand(0.55, 1.05) }
-        : { x: rand(0.75, 1.05), y: rand(-0.05, 0.2) };
-      const end = fromLeft
-        ? { x: rand(0.85, 1.1), y: rand(-0.05, 0.3) }
-        : { x: rand(-0.1, 0.15), y: rand(0.75, 1.05) };
-      const mid = {
-        x: (start.x + end.x) / 2 + rand(-0.16, 0.16),
-        y: (start.y + end.y) / 2 + rand(-0.22, 0.22),
-      };
-      return {
-        start,
-        mid,
-        end,
-        t: seed ? Math.random() : 0,
-        speed: rand(0.0016, 0.0034) * (fromLeft ? 1 : -1),
-        trail: [],
-        hue: Math.random() > 0.5 ? "34, 211, 238" : "167, 139, 250",
-      };
-    };
+    let view = { s: 1, ox: 0, oy: 0 };
 
-    const resize = () => {
+    function computeView() {
+      const designW = W < 720 ? 700 : 1200;
+      const s = Math.min(W / designW, H / 760);
+      return { s, ox: W - 1200 * s, oy: (H - 760 * s) / 2 };
+    }
+
+    const tx = (x) => view.ox + x * view.s;
+    const ty = (y) => view.oy + y * view.s;
+
+    function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = canvas.clientWidth;
       H = canvas.clientHeight;
       canvas.width = Math.round(W * dpr);
       canvas.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      makeStars(W < 700 ? 70 : 130);
-      planes = Array.from({ length: W < 700 ? 4 : 7 }, (_, i) => makePlane(true));
-    };
+      view = computeView();
+      draw(done || reduced ? END : lastT);
+    }
 
-    const bezier = (p, t) => {
-      const u = 1 - t;
-      return {
-        x: u * u * p.start.x + 2 * u * t * p.mid.x + t * t * p.end.x,
-        y: u * u * p.start.y + 2 * u * t * p.mid.y + t * t * p.end.y,
-      };
-    };
+    function drawPoly(pts, p, color, width, dash) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.lineJoin = "round";
+      ctx.lineCap = "round";
+      if (dash) ctx.setLineDash(dash);
+      ctx.beginPath();
+      const total = pts.length - 1;
+      const upto = p * total;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const segEnd = Math.min(Math.max(upto - i, 0), 1);
+        const [x0, y0] = pts[i];
+        const [x1, y1] = pts[i + 1];
+        const x2 = x0 + (x1 - x0) * segEnd;
+        const y2 = y0 + (y1 - y0) * segEnd;
+        if (i === 0) ctx.moveTo(tx(x0), ty(y0));
+        ctx.lineTo(tx(x2), ty(y2));
+        if (segEnd < 1) break;
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
 
-    const draw = (time) => {
+    const quadPoints = (q, n = 32) =>
+      Array.from({ length: n + 1 }, (_, i) => {
+        const t = i / n;
+        const u = 1 - t;
+        return [
+          u * u * q.p0[0] + 2 * u * t * q.c[0] + t * t * q.p1[0],
+          u * u * q.p0[1] + 2 * u * t * q.c[1] + t * t * q.p1[1],
+        ];
+      });
+
+    function text(str, x, y, color, size, align = "start") {
+      ctx.save();
+      ctx.font = `600 ${size}px "JetBrains Mono", monospace`;
+      ctx.fillStyle = color;
+      ctx.textAlign = align;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(str, tx(x), ty(y));
+      ctx.restore();
+    }
+
+    function draw(t) {
       ctx.clearRect(0, 0, W, H);
+      const s = view.s;
+      if (s <= 0) return;
 
-      /* stelle */
-      stars.forEach((s) => {
-        const tw = 0.35 + 0.65 * Math.abs(Math.sin(time * 0.001 * s.speed + s.phase));
-        ctx.beginPath();
-        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(226, 232, 240, ${0.16 * tw})`;
-        ctx.fill();
-      });
-
-      /* traiettorie */
-      planes.forEach((p) => {
-        if (!reduced) {
-          p.t += p.speed;
-          const out = p.t < -0.15 || p.t > 1.15;
-          if (out) Object.assign(p, makePlane(false));
-        }
-        const t = Math.min(Math.max(p.t, 0), 1);
-        const pos = bezier(p, t);
-        const posPx = { x: pos.x * W, y: pos.y * H };
-
-        /* arco completo, appena visibile */
-        ctx.beginPath();
-        ctx.moveTo(p.start.x * W, p.start.y * H);
-        ctx.quadraticCurveTo(p.mid.x * W, p.mid.y * H, p.end.x * W, p.end.y * H);
-        ctx.strokeStyle = `rgba(${p.hue}, 0.06)`;
+      /* graticule: piccole croci su tutta l'area */
+      const g = prog(t, 0, 350);
+      if (g > 0) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(${PAPER}, ${0.12 * g})`;
         ctx.lineWidth = 1;
-        ctx.stroke();
-
-        /* scia */
-        if (!reduced) {
-          p.trail.push(posPx);
-          if (p.trail.length > 26) p.trail.shift();
-          p.trail.forEach((pt, i) => {
-            const a = (i / p.trail.length) * 0.35;
+        const step = 64;
+        for (let x = step; x < W; x += step) {
+          for (let y = step / 2; y < H; y += step) {
             ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 1.4, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(${p.hue}, ${a})`;
-            ctx.fill();
-          });
+            ctx.moveTo(x - 4, y);
+            ctx.lineTo(x + 4, y);
+            ctx.moveTo(x, y - 4);
+            ctx.lineTo(x, y + 4);
+            ctx.stroke();
+          }
         }
+        ctx.restore();
+      }
 
-        /* il "velivolo" */
-        ctx.beginPath();
-        ctx.arc(posPx.x, posPx.y, 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.hue}, 0.95)`;
-        ctx.shadowColor = `rgba(${p.hue}, 0.9)`;
-        ctx.shadowBlur = 14;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+      /* tracce secondarie + punti */
+      tracks.forEach((tr) => {
+        const p = prog(t, tr.t0, tr.dt);
+        if (p <= 0) return;
+        drawPoly(tr.pts, p, `rgba(${PAPER}, ${tr.a})`, tr.w * Math.max(s, 0.8));
+        if (p >= 1) {
+          const [lx, ly] = tr.pts[tr.pts.length - 1];
+          ctx.beginPath();
+          ctx.arc(tx(lx), ty(ly), 2.4 * Math.max(s, 0.8), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${PAPER}, ${tr.a + 0.12})`;
+          ctx.fill();
+        }
       });
 
-      if (running) rafId = requestAnimationFrame(draw);
-    };
+      /* traccia evidenziata: passato */
+      const php = prog(t, 1450, 700);
+      if (php > 0) {
+        drawPoly(hero.past, php, `rgba(${PAPER}, 0.95)`, 2 * Math.max(s, 0.8));
+        if (php >= 1) {
+          ctx.beginPath();
+          ctx.arc(tx(895), ty(385), 4 * Math.max(s, 0.8), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${PAPER}, 0.95)`;
+          ctx.fill();
+        }
+      }
 
-    const start = () => {
-      if (running) return;
-      running = true;
-      rafId = requestAnimationFrame(draw);
-    };
-    const stop = () => {
-      running = false;
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = null;
-    };
+      /* cono di incertezza */
+      const cp = prog(t, 2050, 500);
+      if (cp > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(tx(hero.cone[0][0]), ty(hero.cone[0][1]));
+        ctx.lineTo(tx(hero.cone[1][0]), ty(hero.cone[1][1]));
+        ctx.lineTo(tx(hero.cone[2][0]), ty(hero.cone[2][1]));
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${BRASS}, ${0.09 * cp})`;
+        ctx.fill();
+        ctx.restore();
+      }
 
+      /* previsione */
+      const pp = prog(t, 2200, 650);
+      if (pp > 0) {
+        drawPoly(quadPoints(hero.pred), pp, `rgba(${BRASS}, 0.95)`, 2 * Math.max(s, 0.8), [6, 6]);
+      }
+
+      /* traccia reale oltre il punto */
+      const ap = prog(t, 2750, 500);
+      if (ap > 0) {
+        drawPoly(quadPoints(hero.actual), ap, `rgba(${SIGNAL}, 0.9)`, 1.6 * Math.max(s, 0.8));
+      }
+
+      /* scostamento */
+      const ep = prog(t, 3100, 350);
+      if (ep > 0) {
+        ctx.save();
+        ctx.strokeStyle = `rgba(${SIGNAL}, ${0.7 * ep})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(tx(hero.error.a[0]), ty(hero.error.a[1]));
+        ctx.lineTo(tx(hero.error.b[0]), ty(hero.error.b[1]));
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      /* etichette */
+      if (W >= 620) {
+        const lp = prog(t, 1900, 450);
+        if (lp > 0) {
+          const size = Math.max(10, Math.round(12 * s));
+          text(hero.label, hero.labelEnd[0], hero.labelEnd[1], `rgba(${PAPER}, ${0.85 * lp})`, size, "end");
+          if (bottomLabel.t0 <= t) {
+            const bp = prog(t, bottomLabel.t0, 450);
+            text(bottomLabel.text, bottomLabel.pos[0], bottomLabel.pos[1], `rgba(${PAPER}, ${0.7 * bp})`, size);
+          }
+          if (ep > 0.6) {
+            text(I18N[lang]["art.flight.pred120"], 1120, 168, `rgba(${BRASS}, ${0.9 * ep})`, size, "end");
+            text(I18N[lang]["art.flight.canvas.err"], 1074, 268, `rgba(${SIGNAL}, ${0.9 * ep})`, size, "end");
+          }
+        }
+      }
+
+      if (!reduced && t >= END) {
+        done = true;
+        cancelAnimationFrame(rafId);
+      }
+    }
+
+    const loop = (now) => {
+      lastT = now - startTime;
+      draw(lastT);
+      if (!done && !reduced) rafId = requestAnimationFrame(loop);
+    };
+    let startTime = 0;
+
+    function start() {
+      if (started || reduced || done) return;
+      started = true;
+      startTime = performance.now();
+      rafId = requestAnimationFrame(loop);
+    }
+
+    redrawScope = () => draw(done || reduced ? END : lastT);
     resize();
-    window.addEventListener("resize", resize);
-
     if (reduced) {
-      draw(0);
+      done = true;
+      draw(END);
     } else if ("IntersectionObserver" in window) {
       new IntersectionObserver(
-        (entries) => entries.forEach((e) => (e.isIntersecting ? start() : stop())),
-        { threshold: 0.02 }
+        (entries) => entries.forEach((e) => e.isIntersecting && start()),
+        { threshold: 0.05 }
       ).observe($("#home"));
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) stop();
-        else if ($("#home").getBoundingClientRect().bottom > 0) start();
-      });
     } else {
       start();
     }
+    window.addEventListener("resize", resize);
   }
 
   /* ------------------------------------------------------------------
-   * 8. Avvio
+   * 6. Avvio
    * ------------------------------------------------------------------ */
   const year = $("#year");
   if (year) year.textContent = String(new Date().getFullYear());
 
   applyLang(lang);
 
-  /* Primo render del terminale quando entra in vista.
-     Se Motion non c'è (o il terminale è già visibile), parte comunque. */
-  const termVisible = terminalBody && terminalBody.getBoundingClientRect().top < window.innerHeight;
-  if (termVisible) typeTerminal();
-
-  /* Il selettore lingua */
-  $("#lang-toggle")?.addEventListener("click", () => {
-    applyLang(lang === "it" ? "en" : "it");
-  });
+  $("#lang-it")?.addEventListener("click", () => applyLang("it"));
+  $("#lang-en")?.addEventListener("click", () => applyLang("en"));
 })();

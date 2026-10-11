@@ -4,26 +4,27 @@ make_images.py — genera le immagini raster del sito con Pillow:
   - assets/icons/apple-touch-icon.png   (180x180)
   - assets/icons/favicon-32x32.png
   - assets/icons/favicon-16x16.png
+  - assets/icons/favicon.ico
   - assets/images/og-image.png          (1200x630, per la condivisione social)
 
 Uso:  python tools/make_images.py
-Richiede Pillow (pip install pillow). I font si prendono da Windows (Segoe UI);
-in mancanza, usa Arial; in mancanza ancora, il font di default di Pillow.
+Richiede Pillow (pip install pillow). I font si prendono da Windows (Segoe UI,
+Consolas); in mancanza, ripiega sul font di default di Pillow.
 """
 
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 
-BG = (5, 7, 13)
-VIOLET = (139, 92, 246)
-VIOLET_SOFT = (167, 139, 250)
-CYAN = (34, 211, 238)
-TEXT = (233, 237, 245)
-MUTED = (154, 166, 184)
+INK = (26, 21, 17)
+INK2 = (20, 16, 12)
+PAPER = (239, 230, 212)
+MUTE = (156, 143, 126)
+BRASS = (233, 161, 59)
+SIGNAL = (220, 100, 64)
 
 WINDOWS_FONTS = Path("C:/Windows/Fonts")
 
@@ -55,136 +56,97 @@ def mono(size):
     return load_font(["consola.ttf", "cour.ttf", "arial.ttf"], size)
 
 
-def gradient(width, height, c1, c2):
-    """Gradiente orizzontale semplice (passo 1px, immagini piccole)."""
-    img = Image.new("RGB", (width, height))
-    d = ImageDraw.Draw(img)
-    for x in range(width):
-        t = x / max(width - 1, 1)
-        col = tuple(round(c1[i] + (c2[i] - c1[i]) * t) for i in range(3))
-        d.line([(x, 0), (x, height)], fill=col)
-    return img
-
-
-def paste_gradient_text(card, xy, text, font, c1, c2, anchor="la"):
-    """Scrive testo riempito col gradiente c1→c2."""
-    mask = Image.new("L", card.size, 0)
-    md = ImageDraw.Draw(mask)
-    md.text(xy, text, font=font, fill=255, anchor=anchor)
-    bbox = mask.getbbox()
-    if not bbox:
-        return
-    grad = gradient(bbox[2] - bbox[0], bbox[3] - bbox[1], c1, c2)
-    card.paste(grad, (bbox[0], bbox[1]), mask.crop(bbox))
-
-
-def glow(card, cx, cy, rx, ry, color, alpha=80):
-    layer = Image.new("RGBA", card.size, (0, 0, 0, 0))
-    ld = ImageDraw.Draw(layer)
-    ld.ellipse([cx - rx, cy - ry, cx + rx, cy + ry], fill=(*color, alpha))
-    layer = layer.filter(ImageFilter.GaussianBlur(120))
-    card.alpha_composite(layer)
-
-
 def icon(size, path):
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    img = Image.new("RGBA", (size, size), (*INK, 255))
     d = ImageDraw.Draw(img)
-    r = max(6, size // 5)
-    d.rounded_rectangle([0, 0, size - 1, size - 1], radius=r, fill=(10, 14, 26, 255))
-    d.rounded_rectangle(
-        [1, 1, size - 2, size - 2], radius=r - 1, outline=(*VIOLET_SOFT, 150), width=max(1, size // 40)
-    )
-    font = bold(round(size * 0.42))
+    r = max(3, size // 8)
+    w = max(1, size // 32)
+    d.rounded_rectangle([w, w, size - 1 - w, size - 1 - w], radius=r, outline=BRASS, width=w)
+    font = bold(round(size * 0.4))
     text = "MV"
     bbox = d.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    x = (size - tw) / 2 - bbox[0]
-    y = (size - th) / 2 - bbox[1] + size * 0.01
-    paste_gradient_text(img, (x, y), text, font, VIOLET_SOFT, CYAN)
+    d.text(((size - tw) / 2 - bbox[0], (size - th) / 2 - bbox[1] + size * 0.015), text, font=font, fill=PAPER)
     return img
 
 
 def save_icon(size, path):
-    img = icon(size, path)
-    img.save(path, "PNG")
+    icon(size, path).save(path, "PNG")
     print(f"  ok  {Path(path).relative_to(ROOT)}")
-    return img
 
 
 def save_ico(path):
-    img = icon(64, path)
-    img.save(
-        path,
-        "ICO",
-        sizes=[(16, 16), (32, 32), (48, 48), (64, 64)],
-    )
+    icon(64, path).save(path, "ICO", sizes=[(16, 16), (32, 32), (48, 48), (64, 64)])
     print(f"  ok  {Path(path).relative_to(ROOT)}")
+
+
+def crosses(d, W, H, step=64, color=(48, 42, 36)):
+    for x in range(step, W, step):
+        for y in range(step // 2, H, step):
+            d.line([(x - 4, y), (x + 4, y)], fill=color, width=1)
+            d.line([(x, y - 4), (x, y + 4)], fill=color, width=1)
+
+
+def poligono_parziale(pts, n=40):
+    """Campiona una polilinea in n punti (per disegnare tratti lisci)."""
+    out = []
+    segs = len(pts) - 1
+    for i in range(n + 1):
+        t = i / n
+        u = min(int(t * segs), segs - 1)
+        local = t * segs - u
+        x0, y0 = pts[u]
+        x1, y1 = pts[u + 1]
+        out.append((x0 + (x1 - x0) * local, y0 + (y1 - y0) * local))
+    return out
 
 
 def og_card(path):
     W, H = 1200, 630
-    card = Image.new("RGBA", (W, H), (*BG, 255))
+    img = Image.new("RGB", (W, H), INK)
+    d = ImageDraw.Draw(img)
 
-    # griglia tenue
-    grid = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(grid)
-    for x in range(0, W, 60):
-        gd.line([(x, 0), (x, H)], fill=(255, 255, 255, 10))
-    for y in range(0, H, 60):
-        gd.line([(0, y), (W, y)], fill=(255, 255, 255, 10))
-    card.alpha_composite(grid)
+    # graticule
+    crosses(d, W, H)
 
-    # bagliori
-    glow(card, 170, 90, 420, 340, VIOLET, 95)
-    glow(card, 1060, 150, 360, 300, CYAN, 55)
-    glow(card, 620, 690, 500, 220, (244, 114, 182), 28)
+    # traccia di volo: passato pieno + previsione tratteggiata + scostamento
+    past = [(700, 470), (790, 420), (880, 365), (960, 310)]
+    seg = poligono_parziale(past, 32)
+    d.line(seg, fill=PAPER, width=3)
+    d.ellipse([960 - 6, 310 - 6, 960 + 6, 310 + 6], fill=PAPER)
 
-    d = ImageDraw.Draw(card)
+    pred = [(960, 310), (1030, 260), (1110, 195)]
+    pseg = poligono_parziale(pred, 32)
+    # tratteggio manuale
+    for i in range(len(pseg) - 1):
+        if (i // 3) % 2 == 0:
+            d.line([pseg[i], pseg[i + 1]], fill=BRASS, width=3)
 
-    # monogramma in alto a sinistra
-    m = 64
-    d.rounded_rectangle([m, m, m + 76, m + 76], radius=20, fill=(16, 20, 36, 255))
-    d.rounded_rectangle([m, m, m + 76, m + 76], radius=20, outline=(*VIOLET_SOFT, 170), width=3)
-    f_mono = bold(40)
-    tb = d.textbbox((0, 0), "MV", font=f_mono)
-    paste_gradient_text(
-        card,
-        (m + 38 - (tb[2] - tb[0]) / 2 - tb[0], m + 38 - (tb[3] - tb[1]) / 2 - tb[1]),
-        "MV",
-        f_mono,
-        VIOLET_SOFT,
-        CYAN,
-    )
-    d.text((m + 100, m + 40), "marco.valle", font=semibold(30), fill=TEXT, anchor="lm")
+    actual = [(960, 310), (1025, 272), (1092, 232)]
+    aseg = poligono_parziale(actual, 32)
+    d.line(aseg, fill=SIGNAL, width=2)
+    d.line([(1110, 195), (1092, 232)], fill=SIGNAL, width=1)
+    d.ellipse([1110 - 5, 195 - 5, 1110 + 5, 195 + 5], fill=BRASS)
+    d.ellipse([1092 - 5, 232 - 5, 1092 + 5, 232 + 5], fill=SIGNAL)
 
-    # titolo
-    d.text((m, 245), "Marco Valle", font=bold(96), fill=TEXT, anchor="lm")
-    paste_gradient_text(
-        card, (m, 332), "Back-End Developer & Data Analyst", semibold(44), VIOLET_SOFT, CYAN
-    )
+    f_block = mono(20)
+    d.text((640, 306), "MV582  FL340  458 kt", font=f_block, fill=(210, 201, 187))
+
+    # testo
+    d.text((64, 96), "Marco Valle", font=bold(84), fill=PAPER)
+    d.text((64, 208), "Sviluppatore back-end e data analyst", font=semibold(40), fill=BRASS)
     d.text(
-        (m, 412),
-        "ERP Django in produzione  ·  Transformer su 65M record ADS-B  ·  IoT con ESP32",
-        font=regular(26),
-        fill=MUTED,
-        anchor="lm",
+        (64, 282),
+        "Gestionale ERP in produzione, Transformer su 65 milioni",
+        font=regular(27),
+        fill=MUTE,
     )
+    d.text((64, 318), "di record ADS-B, firmware ESP32 per sensori.", font=regular(27), fill=MUTE)
 
-    # chips
-    chips = ["Python", "Django", "PostgreSQL", "PyTorch", "Docker", "ESP32"]
-    f_chip = regular(24)
-    x = m
-    for chip in chips:
-        tb = d.textbbox((0, 0), chip, font=f_chip)
-        w = tb[2] - tb[0] + 44
-        d.rounded_rectangle([x, 470, x + w, 470 + 46], radius=23, outline=(255, 255, 255, 60), width=2)
-        d.text((x + w / 2, 470 + 23), chip, font=f_chip, fill=(207, 217, 232), anchor="mm")
-        x += w + 14
+    d.text((64, 560), "Bergamo, 45.6983° N, 9.6773° E", font=mono(22), fill=MUTE)
+    d.text((W - 64, 560), "marcovallecs.github.io", font=mono(22), fill=MUTE, anchor="ra")
 
-    # indirizzo
-    d.text((W - m, 590), "marcovallecs.github.io", font=mono(24), fill=MUTED, anchor="rm")
-
-    card.convert("RGB").save(path, "PNG")
+    img.save(path, "PNG")
     print(f"  ok  {Path(path).relative_to(ROOT)}")
 
 
