@@ -101,50 +101,72 @@ def poligono_parziale(pts, n=40):
     return out
 
 
+def load_aerotraj():
+    """Legge lo snapshot dei dati del benchmark (assets/js/aerotraj-data.js)."""
+    import json
+    import re
+
+    raw = (ROOT / "assets/js/aerotraj-data.js").read_text(encoding="utf-8")
+    m = re.search(r"window\.AEROTRAJ\s*=\s*(\{.*\});", raw, re.S)
+    if not m:
+        raise RuntimeError("non riesco a leggere assets/js/aerotraj-data.js")
+    return json.loads(m.group(1))
+
+
 def og_card(path):
     W, H = 1200, 630
     img = Image.new("RGB", (W, H), INK)
     d = ImageDraw.Draw(img)
 
-    # graticule
     crosses(d, W, H)
 
-    # traccia di volo: passato pieno + previsione tratteggiata + scostamento
-    past = [(700, 470), (790, 420), (880, 365), (960, 310)]
-    seg = poligono_parziale(past, 32)
-    d.line(seg, fill=PAPER, width=3)
-    d.ellipse([960 - 6, 310 - 6, 960 + 6, 310 + 6], fill=PAPER)
+    # dati reali del benchmark (stesso snapshot usato dal sito)
+    data = load_aerotraj()
 
-    pred = [(960, 310), (1030, 260), (1110, 195)]
-    pseg = poligono_parziale(pred, 32)
-    # tratteggio manuale
-    for i in range(len(pseg) - 1):
-        if (i // 3) % 2 == 0:
-            d.line([pseg[i], pseg[i + 1]], fill=BRASS, width=3)
+    # curva misurata: errore medio per orizzonte
+    px0, py0, px1, py1 = 690, 150, 1130, 430
+    hz = data["horizons_s"]
+    ours = data["series"]["AeroTraj-Ultra"]
+    fbpp = data["series"]["FlightBERT++"]
+    ymin, ymax = 50.0, 20000.0
 
-    actual = [(960, 310), (1025, 272), (1092, 232)]
-    aseg = poligono_parziale(actual, 32)
-    d.line(aseg, fill=SIGNAL, width=2)
-    d.line([(1110, 195), (1092, 232)], fill=SIGNAL, width=1)
-    d.ellipse([1110 - 5, 195 - 5, 1110 + 5, 195 + 5], fill=BRASS)
-    d.ellipse([1092 - 5, 232 - 5, 1092 + 5, 232 + 5], fill=SIGNAL)
+    def X(h):
+        return px0 + (h / 300.0) * (px1 - px0)
 
-    f_block = mono(20)
-    d.text((640, 306), "MV582  FL340  458 kt", font=f_block, fill=(210, 201, 187))
+    def Y(v):
+        import math
+
+        lo, hi = math.log10(ymin), math.log10(ymax)
+        return py1 - ((math.log10(max(v, ymin)) - lo) / (hi - lo)) * (py1 - py0)
+
+    d.line([(px0, py0), (px0, py1)], fill=(70, 63, 55), width=1)
+    d.line([(px0, py1), (px1, py1)], fill=(70, 63, 55), width=1)
+    for h, txt in [(10, "10"), (60, "60"), (120, "120"), (300, "300")]:
+        d.line([(X(h), py1), (X(h), py1 + 6)], fill=(70, 63, 55), width=1)
+        d.text((X(h), py1 + 12), txt, font=mono(16), fill=MUTE, anchor="ma")
+
+    def curve(values, color, width):
+        pts = [(X(h), Y(v)) for h, v in zip(hz, values)]
+        for i in range(len(pts) - 1):
+            d.line([pts[i], pts[i + 1]], fill=color, width=width)
+
+    curve(ours, BRASS, 3)
+    d.ellipse([X(300) - 5, Y(ours[-1]) - 5, X(300) + 5, Y(ours[-1]) + 5], fill=BRASS)
+    d.text((X(300) - 12, Y(ours[-1]) - 14), "AeroTraj-Ultra", font=mono(17), fill=BRASS, anchor="ra")
+
+    d.text((px0, py0 - 18), "errore medio 3D (m, scala log)", font=mono(16), fill=MUTE)
 
     # testo
     d.text((64, 96), "Marco Valle", font=bold(84), fill=PAPER)
     d.text((64, 208), "Sviluppatore back-end e data analyst", font=semibold(40), fill=BRASS)
-    d.text(
-        (64, 282),
-        "Gestionale ERP in produzione, Transformer su 65 milioni",
-        font=regular(27),
-        fill=MUTE,
-    )
-    d.text((64, 318), "di record ADS-B, firmware ESP32 per sensori.", font=regular(27), fill=MUTE)
+    d.text((64, 286), "Gestionale ERP in produzione e modelli di", font=regular(27), fill=MUTE)
+    d.text((64, 322), "previsione delle traiettorie aeree.", font=regular(27), fill=MUTE)
 
-    d.text((64, 560), "Bergamo, 45.6983° N, 9.6773° E", font=mono(22), fill=MUTE)
-    d.text((W - 64, 560), "marcovallecs.github.io", font=mono(22), fill=MUTE, anchor="ra")
+    d.text((64, 430), "991,6 m", font=bold(46), fill=BRASS, anchor="ls")
+    d.text((64, 462), "errore medio su 5–300 s, il migliore fra 10 modelli", font=regular(23), fill=MUTE)
+
+    d.text((64, 566), "Bergamo, 45.6983° N, 9.6773° E", font=mono(22), fill=MUTE)
+    d.text((W - 64, 566), "marcovallecs.github.io", font=mono(22), fill=MUTE, anchor="ra")
 
     img.save(path, "PNG")
     print(f"  ok  {Path(path).relative_to(ROOT)}")

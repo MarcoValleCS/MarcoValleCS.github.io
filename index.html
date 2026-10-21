@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Marco Valle, sviluppatore back-end e data analyst</title>
-  <meta name="description" content="Gestionale ERP in produzione con Django e PostgreSQL, Transformer in PyTorch per le traiettorie aeree su 65 milioni di record ADS-B, firmware ESP32 per sensori. Python, Django, PyTorch, Docker, Linux." />
+  <meta name="description" content="Gestionale ERP in produzione con Django e PostgreSQL, modello non autoregressivo per la previsione delle traiettorie aeree su 65 milioni di record ADS-B reali, firmware ESP32 per sensori. Python, Django, PyTorch, Docker, Linux." />
   <meta name="author" content="Marco Valle" />
   <meta name="theme-color" content="#1A1511" />
   <link rel="canonical" href="https://marcovallecs.github.io/" />
@@ -13,7 +13,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://marcovallecs.github.io/" />
   <meta property="og:title" content="Marco Valle, sviluppatore back-end e data analyst" />
-  <meta property="og:description" content="Un gestionale ERP in produzione, un Transformer addestrato su 65 milioni di record ADS-B, firmware ESP32. Python, Django, PyTorch, Docker." />
+  <meta property="og:description" content="Un gestionale ERP in produzione e un modello che prevede la traiettoria di un aereo fino a 300 secondi avanti: 991,6 m di errore medio, il migliore fra dieci modelli a confronto." />
   <meta property="og:image" content="https://marcovallecs.github.io/assets/images/og-image.png" />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:locale:alternate" content="en_US" />
@@ -71,8 +71,8 @@
       </nav>
       <div class="nav-side">
         <div class="lang" role="group" data-i18n-attr="aria-label:a11y.lang" aria-label="Cambia lingua">
-          <button type="button" id="lang-it" data-lang="it" data-i18n-attr="aria-label:a11y.lang.it" aria-label="Italiano">IT</button>
-          <button type="button" id="lang-en" data-lang="en" data-i18n-attr="aria-label:a11y.lang.en" aria-label="Inglese">EN</button>
+          <button type="button" id="lang-it" data-lang="it" data-i18n-attr="title:a11y.lang.it" title="Italiano">IT</button>
+          <button type="button" id="lang-en" data-lang="en" data-i18n-attr="title:a11y.lang.en" title="Inglese">EN</button>
         </div>
         <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav-links" data-i18n-attr="aria-label:a11y.menu" aria-label="Apri il menu">Menu</button>
       </div>
@@ -88,9 +88,9 @@
         <h1>Marco Valle</h1>
         <p class="hero-role" data-i18n="hero.role">Sviluppatore back-end e data analyst a Bergamo.</p>
         <p class="hero-lead" data-i18n="hero.lead">
-          Costruisco gestionali in Python e Django: quello di Aquaforma S.r.l. è in
-          produzione da mesi. Fuori dall'orario di lavoro addestro modelli che prevedono
-          dove andranno gli aerei.
+          Lavoro su due cose che devono durare: il gestionale che oggi è il sistema
+          di Aquaforma, e modelli che prevedono dove saranno gli aerei, addestrati
+          su 65 milioni di record ADS-B reali.
         </p>
 
         <div class="hero-actions">
@@ -100,23 +100,23 @@
 
         <dl class="spec">
           <div class="spec-row">
-            <dt data-i18n="hero.spec.r1.label">Gestionale aziendale</dt>
-            <dd class="spec-value" data-i18n="hero.spec.r1.value">in produzione</dd>
-            <dd class="spec-where" data-i18n="hero.spec.r1.where">Aquaforma S.r.l.</dd>
+            <dt data-i18n="hero.spec.r1.label">AeroTraj-Ultra</dt>
+            <dd class="spec-value" data-i18n="hero.spec.r1.value">991,6 m</dd>
+            <dd class="spec-where" data-i18n="hero.spec.r1.where">errore medio, 5–300 s</dd>
           </div>
           <div class="spec-row">
-            <dt data-i18n="hero.spec.r2.label">Record ADS-B elaborati</dt>
-            <dd class="spec-value" data-i18n="hero.spec.r2.value">65 milioni</dd>
-            <dd class="spec-where">FlightPREV</dd>
+            <dt data-i18n="hero.spec.r2.label">Gestionale aziendale</dt>
+            <dd class="spec-value" data-i18n="hero.spec.r2.value">in produzione</dd>
+            <dd class="spec-where" data-i18n="hero.spec.r2.where">Aquaforma S.r.l.</dd>
           </div>
           <div class="spec-row">
-            <dt data-i18n="hero.spec.r3.label">Errore medio di previsione</dt>
-            <dd class="spec-value" data-i18n="hero.spec.r3.value">582 m, −30%</dd>
-            <dd class="spec-where">FlightPREV</dd>
+            <dt data-i18n="hero.spec.r3.label">Record ADS-B elaborati</dt>
+            <dd class="spec-value" data-i18n="hero.spec.r3.value">65 milioni</dd>
+            <dd class="spec-where" data-i18n="hero.spec.r3.where">90–180 giorni di traffico OpenSky</dd>
           </div>
           <div class="spec-row">
             <dt data-i18n="hero.spec.r4.label">Test automatici</dt>
-            <dd class="spec-value" data-i18n="hero.spec.r4.value">480+</dd>
+            <dd class="spec-value" data-i18n="hero.spec.r4.value">600+</dd>
             <dd class="spec-where" data-i18n="hero.spec.r4.where">CI a ogni push</dd>
           </div>
         </dl>
@@ -142,14 +142,14 @@
               In Aquaforma S.r.l., a Treviolo, gestisco l'IT aziendale e sviluppo il
               gestionale che oggi è il sistema di gestione principale: anagrafiche,
               preventivi, ordini, magazzino, DDT e fatturazione elettronica verso lo SDI.
-              È in produzione su un VPS Linux con Docker, e 480 test automatici girano a
-              ogni push.
+              È in produzione su un VPS Linux con Docker, e oltre 600 test automatici
+              girano a ogni push.
             </p>
             <p data-i18n="about.p3">
-              Il resto lo faccio fuori dall'orario di lavoro: 65 milioni di record ADS-B
-              per insegnare a un modello dove andranno gli aerei, un firmware ESP32 che
-              misura la chimica dell'acqua della piscina, un'app Android che comanda i
-              relè. Mi interessano i problemi concreti, quelli che finiscono in produzione.
+              Il resto lo faccio fuori dall'orario di lavoro: modelli di deep learning per
+              la previsione del traffico aereo, un firmware ESP32 che misura la chimica
+              dell'acqua della piscina, un'app Android che comanda i relè. Mi
+              interessano i problemi concreti, quelli che finiscono in produzione.
             </p>
 
             <dl class="facts">
@@ -183,6 +183,37 @@
       </div>
     </section>
 
+    <!-- ============================== METODO ============================== -->
+    <section class="section" id="method">
+      <div class="container">
+        <div class="section-head">
+          <h2 data-i18n="method.title">Metodo di lavoro</h2>
+          <p class="section-lead" data-i18n="method.lead">
+            Quattro abitudini che tengono insieme i progetti qui sotto.
+          </p>
+        </div>
+
+        <div class="method-grid">
+          <div class="method-item" data-reveal>
+            <h3 data-i18n="method.1.t">Problemi concreti</h3>
+            <p data-i18n="method.1.d">Preferisco un progetto completo e in produzione a più progetti incompiuti.</p>
+          </div>
+          <div class="method-item" data-reveal>
+            <h3 data-i18n="method.2.t">Test fin dall'inizio</h3>
+            <p data-i18n="method.2.d">Oltre 600 test in CI: ogni push è verificato e ogni rilascio resta reversibile.</p>
+          </div>
+          <div class="method-item" data-reveal>
+            <h3 data-i18n="method.3.t">Dati reali, protocollo comune</h3>
+            <p data-i18n="method.3.d">Addestramento su traffico reale e confronto fra modelli sugli stessi dati: risultati verificabili da terzi.</p>
+          </div>
+          <div class="method-item" data-reveal>
+            <h3 data-i18n="method.4.t">Documentazione accanto al codice</h3>
+            <p data-i18n="method.4.d">Il codice di dominio si spiega meglio con una documentazione scritta accanto, non separata.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ============================== COMPETENZE ============================== -->
     <section class="section" id="skills">
       <div class="container">
@@ -200,7 +231,7 @@
           </div>
           <div class="data-row">
             <dt data-i18n="skills.r2.area">Dati e machine learning</dt>
-            <dd data-i18n="skills.r2.list">PyTorch, NumPy, pandas, Matplotlib</dd>
+            <dd data-i18n="skills.r2.list">PyTorch, NumPy, pandas, Matplotlib, OpenSky ADS-B</dd>
           </div>
           <div class="data-row">
             <dt data-i18n="skills.r3.area">DevOps</dt>
@@ -214,6 +245,10 @@
             <dt data-i18n="skills.r5.area">Gestionale e integrazione</dt>
             <dd data-i18n="skills.r5.list">Odoo (ERP/CRM), XML FatturaPA nel formato FPR12, PEC, server MCP</dd>
           </div>
+          <div class="data-row">
+            <dt data-i18n="skills.r6.area">Geodesia e codifica</dt>
+            <dd data-i18n="skills.r6.list">WGS-84, propagatori cinematici, Gray Code, calibrazione conforme</dd>
+          </div>
         </dl>
       </div>
     </section>
@@ -224,10 +259,94 @@
         <div class="section-head">
           <h2 data-i18n="projects.title">Progetti</h2>
           <p class="section-lead" data-i18n="projects.intro">
-            Tre cose vere: un gestionale in produzione, un modello che è nato come tesi,
-            un impianto che gestisce l'acqua di una piscina.
+            Un modello di ricerca con benchmark aperto, il gestionale che regge
+            un'azienda, il progetto di tesi e un impianto che misura l'acqua di una
+            piscina.
           </p>
         </div>
+
+        <!-- AeroTraj-Ultra -->
+        <article class="dossier">
+          <header class="dossier-head">
+            <h3>AeroTraj-Ultra</h3>
+            <p class="dossier-meta" data-i18n="projects.aerotraj.meta">Progetto personale e benchmark aperto · 2026</p>
+          </header>
+          <div class="dossier-body">
+            <div class="dossier-text">
+              <p data-i18n="projects.aerotraj.p1">
+                Un modello non autoregressivo che prevede la posizione di un aereo da 5 a
+                300 secondi avanti: una sola passata in avanti, tredici orizzonti
+                contemporaneamente e nessun accumulo dell'errore. Ogni previsione è
+                ancorata a un propagatore cinematico analitico sull'ellissoide WGS-84, e
+                le posizioni assolute sono codificate in Gray Code, così l'uscita è
+                decodificabile per costruzione.
+              </p>
+              <p data-i18n="projects.aerotraj.p2">
+                Allenato su 90–180 giorni di traffico reale OpenSky: 827 milioni di righe
+                grezze lette, 65 milioni di punti a 5 secondi e 36 milioni di finestre
+                di addestramento. Accanto al modello c'è un benchmark aperto: i modelli
+                della letteratura sono stati reimplementati e valutati sugli stessi dati
+                con lo stesso protocollo.
+              </p>
+              <ul class="project-stats">
+                <li><strong>991,6 m</strong><span data-i18n="projects.aerotraj.s1">errore medio, 5–300 s</span></li>
+                <li><strong>1,28 M</strong><span data-i18n="projects.aerotraj.s2">parametri del modello</span></li>
+                <li><strong>19,6 ms</strong><span data-i18n="projects.aerotraj.s3">per aereo, su GPU</span></li>
+                <li><strong>10</strong><span data-i18n="projects.aerotraj.s4">modelli a confronto</span></li>
+              </ul>
+              <p class="dossier-link-line">
+                <a class="repo-link" href="https://github.com/MarcoValleCS/AeroTraj-Ultra" target="_blank" rel="noopener">github.com/MarcoValleCS/AeroTraj-Ultra</a>
+              </p>
+            </div>
+
+            <figure class="plot">
+              <figcaption data-i18n="projects.aerotraj.caption">
+                Errore medio 3D in metri, per orizzonte di previsione. Misure del
+                benchmark, 60.000 finestre di test.
+              </figcaption>
+              <div class="plot-canvas" id="curve-plate"></div>
+              <ul class="legend legend-chart" id="curve-legend"></ul>
+              <p class="plot-note" data-i18n="projects.aerotraj.note">
+                Dati pubblicati nel repository del progetto. AeroTraj-Ultra ha l'errore
+                più basso a tutti e tredici gli orizzonti.
+              </p>
+              <noscript>
+                <p class="plot-note" data-i18n="projects.aerotraj.noscript">
+                  Il grafico richiede JavaScript; i valori sono nella tabella qui sotto.
+                </p>
+              </noscript>
+            </figure>
+          </div>
+
+          <div class="bench">
+            <h4 class="bench-title" data-i18n="projects.aerotraj.bench">Benchmark aperto: dieci modelli, stessi dati, stesso protocollo</h4>
+            <table class="bench-table">
+              <thead>
+                <tr>
+                  <th scope="col" data-i18n="projects.aerotraj.bench.model">Modello</th>
+                  <th scope="col" class="num" data-i18n="projects.aerotraj.bench.mde">Errore medio (m)</th>
+                  <th scope="col" class="num" data-i18n="projects.aerotraj.bench.fde">Errore finale (m)</th>
+                </tr>
+              </thead>
+              <tbody>
+          <tr class="is-ours"><td><strong>AeroTraj-Ultra</strong></td><td class="num">991.6</td><td class="num">4243.8</td></tr>
+          <tr><td>FlightBERT++</td><td class="num">1219.9</td><td class="num">5025.6</td></tr>
+          <tr><td>LSTM</td><td class="num">1296.4</td><td class="num">5264.8</td></tr>
+          <tr><td>CV con Doppler</td><td class="num">1507.7</td><td class="num">6643.0</td></tr>
+          <tr><td>CFM</td><td class="num">1704.3</td><td class="num">7125.8</td></tr>
+          <tr><td>CV minimi quadrati</td><td class="num">1802.5</td><td class="num">7391.8</td></tr>
+          <tr><td>IMM</td><td class="num">2019.2</td><td class="num">7721.2</td></tr>
+          <tr><td>ASCENT</td><td class="num">2348.9</td><td class="num">8426.0</td></tr>
+          <tr><td>Attention-LSTM</td><td class="num">3170.0</td><td class="num">14694.6</td></tr>
+          <tr><td>DDPM</td><td class="num">4300.5</td><td class="num">17871.6</td></tr>
+              </tbody>
+            </table>
+            <p class="bench-note" data-i18n="projects.aerotraj.bench.note">
+              Errore medio 3D su tutto l'orizzonte 5–300 s ed errore finale al 300 s,
+              calcolati sulle stesse 60.000 finestre di test.
+            </p>
+          </div>
+        </article>
 
         <!-- Gestionale -->
         <article class="dossier">
@@ -245,8 +364,8 @@
               <p data-i18n="projects.erp.p2">
                 La fatturazione elettronica genera l'XML FatturaPA nel formato FPR12 e lo
                 trasmette allo SDI via PEC. Il deploy è su un VPS Linux con Docker
-                Compose, 480 test automatici girano in CI a ogni push, e un server MCP in
-                sola lettura espone i dati agli assistenti AI.
+                Compose, oltre 600 test automatici girano in CI a ogni push, e un server
+                MCP in sola lettura espone i dati agli assistenti AI.
               </p>
               <p class="dossier-link-line">
                 <a class="repo-link" href="https://github.com/MarcoValleCS/gestionale" target="_blank" rel="noopener">github.com/MarcoValleCS/gestionale</a>
@@ -279,117 +398,47 @@
         </article>
 
         <!-- FlightPREV -->
-        <article class="dossier">
+        <article class="dossier dossier-compact">
           <header class="dossier-head">
             <h3>FlightPREV</h3>
-            <p class="dossier-meta" data-i18n="projects.flight.meta">Progetto personale, 2025–2026. Nato dalla tesi di laurea.</p>
+            <p class="dossier-meta" data-i18n="projects.flight.meta">Progetto di tesi · 2025–2026</p>
           </header>
           <div class="dossier-body">
             <div class="dossier-text">
               <p data-i18n="projects.flight.p1">
-                Un Transformer in PyTorch prevede la posizione di un aereo da 10 a 120
-                secondi nel futuro. È addestrato su 65 milioni di record ADS-B passati
-                attraverso una pipeline completa: pulizia, segmentazione, ricampionamento
-                e finestre scorrevoli.
+                Il primo modello, nato dalla tesi di laurea: un Transformer che prevede
+                la posizione di un aereo da 10 a 120 secondi, addestrato su 65 milioni
+                di record ADS-B con una pipeline completa di pulizia, segmentazione,
+                ricampionamento e finestre scorrevoli.
               </p>
               <p data-i18n="projects.flight.p2">
-                L'errore medio di previsione (ADE) è di 582 metri contro gli 833 della
-                migliore baseline cinematica: il 30% in meno, grazie al residual
-                learning. E la previsione batte anche una reimplementazione del paper
-                FlightBERT, del 75–90% su tutti gli orizzonti.
+                Errore medio di 582 m contro gli 833 della migliore baseline cinematica,
+                il 30% in meno grazie al residual learning, e il 75–90% in meno rispetto
+                a una reimplementazione di FlightBERT su tutti gli orizzonti.
               </p>
               <p class="dossier-link-line">
                 <a class="repo-link" href="https://github.com/MarcoValleCS/flight" target="_blank" rel="noopener">github.com/MarcoValleCS/flight</a>
               </p>
             </div>
 
-            <figure class="plot">
-              <figcaption data-i18n="art.flight.caption">
-                Una traccia reale e una previsione a 120 secondi.
-              </figcaption>
-
-              <!-- Tavola 1: plot della traccia -->
-              <svg class="plot-scope" viewBox="0 0 720 340" role="img" aria-hidden="true">
-                <defs>
-                  <pattern id="crux" width="60" height="60" patternUnits="userSpaceOnUse">
-                    <path d="M30 24v12M24 30h12" fill="none" stroke="rgba(239,230,212,.13)" stroke-width="1" />
-                  </pattern>
-                </defs>
-                <rect x="0" y="0" width="720" height="340" fill="url(#crux)" />
-
-                <!-- altre tracce -->
-                <polyline points="60,96 190,108 320,152 424,214" fill="none" stroke="rgba(239,230,212,.28)" stroke-width="1.5" />
-                <circle cx="424" cy="214" r="2.6" fill="rgba(239,230,212,.4)" />
-                <polyline points="662,48 548,92 440,140 352,178" fill="none" stroke="rgba(239,230,212,.28)" stroke-width="1.5" />
-                <circle cx="352" cy="178" r="2.6" fill="rgba(239,230,212,.4)" />
-                <polyline points="80,306 244,286 432,272 648,292" fill="none" stroke="rgba(239,230,212,.28)" stroke-width="1.5" />
-                <circle cx="648" cy="292" r="2.6" fill="rgba(239,230,212,.4)" />
-
-                <!-- traccia evidenziata: passato -->
-                <polyline points="40,226 152,218 252,200 340,172" fill="none" stroke="#EFE6D4" stroke-width="2" />
-                <circle cx="340" cy="172" r="4" fill="#EFE6D4" />
-
-                <!-- cono di incertezza -->
-                <path d="M340 172 L610 82 L610 114 Z" fill="rgba(233,161,59,.09)" />
-                <!-- previsione -->
-                <path d="M340 172 Q 480 128 610 98" fill="none" stroke="#E9A13B" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" />
-                <!-- traccia reale oltre il punto -->
-                <path d="M340 172 Q 478 140 594 126" fill="none" stroke="#D8572F" stroke-width="1.6" />
-                <!-- scostamento -->
-                <line x1="610" y1="98" x2="594" y2="126" stroke="rgba(216,87,47,.7)" stroke-width="1" />
-                <line x1="604" y1="96" x2="616" y2="100" stroke="rgba(216,87,47,.9)" stroke-width="1" />
-                <line x1="588" y1="124" x2="600" y2="128" stroke="rgba(216,87,47,.9)" stroke-width="1" />
-
-                <!-- etichette -->
-                <text x="368" y="198" class="svg-label">MV582  FL340  458 kt</text>
-                <text x="716" y="68" class="svg-label amber" text-anchor="end" data-i18n="art.flight.pred">previsione +120 s</text>
-                <text x="600" y="152" class="svg-label red" data-i18n="art.flight.err">errore 582 m</text>
-                <text x="600" y="168" class="svg-label dim sm" data-i18n="art.flight.err.note">(media dei test)</text>
-              </svg>
-
-              <ul class="legend">
-                <li class="legend-real" data-i18n="art.flight.legend.real">traccia reale</li>
-                <li class="legend-pred" data-i18n="art.flight.legend.pred">previsione</li>
-                <li class="legend-cone" data-i18n="art.flight.legend.cone">incertezza</li>
-              </ul>
-
-              <!-- Tavola 2: errore per orizzonte -->
-              <svg class="plot-chart" viewBox="0 0 720 200" role="img" aria-hidden="true">
-                <line x1="64" y1="30" x2="64" y2="166" stroke="rgba(239,230,212,.25)" />
-                <line x1="64" y1="166" x2="664" y2="166" stroke="rgba(239,230,212,.25)" />
-                <line x1="64" y1="126" x2="664" y2="126" stroke="rgba(239,230,212,.07)" />
-                <line x1="64" y1="86" x2="664" y2="86" stroke="rgba(239,230,212,.07)" />
-                <line x1="64" y1="46" x2="664" y2="46" stroke="rgba(239,230,212,.07)" />
-                <text x="52" y="170" class="svg-label" text-anchor="end">0</text>
-                <text x="52" y="130" class="svg-label" text-anchor="end">400 m</text>
-                <text x="52" y="90" class="svg-label" text-anchor="end">800 m</text>
-                <text x="52" y="50" class="svg-label" text-anchor="end">1200 m</text>
-                <line x1="166" y1="166" x2="166" y2="172" stroke="rgba(239,230,212,.25)" />
-                <line x1="318" y1="166" x2="318" y2="172" stroke="rgba(239,230,212,.25)" />
-                <line x1="471" y1="166" x2="471" y2="172" stroke="rgba(239,230,212,.25)" />
-                <text x="166" y="188" class="svg-label" text-anchor="middle">30 s</text>
-                <text x="318" y="188" class="svg-label" text-anchor="middle">60 s</text>
-                <text x="471" y="188" class="svg-label" text-anchor="middle">90 s</text>
-                <text x="64" y="188" class="svg-label">10 s</text>
-                <text x="624" y="188" class="svg-label" text-anchor="middle">120 s</text>
-                <!-- baseline: 833 m medi -->
-                <line x1="64" y1="137" x2="624" y2="36" stroke="rgba(156,143,126,.9)" stroke-width="2" stroke-dasharray="5 5" />
-                <!-- FlightPREV: 582 m medi -->
-                <line x1="64" y1="146" x2="624" y2="76" stroke="#E9A13B" stroke-width="2.5" />
-                <!-- scarto -->
-                <line x1="497" y1="60" x2="497" y2="92" stroke="rgba(233,161,59,.7)" />
-                <line x1="492" y1="60" x2="502" y2="60" stroke="rgba(233,161,59,.7)" />
-                <line x1="492" y1="92" x2="502" y2="92" stroke="rgba(233,161,59,.7)" />
-                <text x="506" y="80" class="svg-label amber">−30%</text>
-              </svg>
-              <ul class="legend legend-chart">
-                <li class="legend-base" data-i18n="art.flight.chart.base">baseline cinematica, 833 m</li>
-                <li class="legend-ours">FlightPREV, 582 m</li>
-              </ul>
-              <p class="plot-note" data-i18n="art.flight.note">
-                Curve illustrative. 833 m e 582 m sono le medie misurate nei test, da 10 a 120 secondi.
-              </p>
-            </figure>
+            <dl class="scheda">
+              <div class="scheda-row">
+                <dt data-i18n="projects.flight.k1">Orizzonte</dt>
+                <dd>10–120 s</dd>
+              </div>
+              <div class="scheda-row">
+                <dt data-i18n="projects.flight.k2">Record ADS-B</dt>
+                <dd>65 milioni</dd>
+              </div>
+              <div class="scheda-row">
+                <dt data-i18n="projects.flight.k3">Errore medio</dt>
+                <dd>582 m <span class="dim" data-i18n="projects.flight.k3b">baseline 833 m</span></dd>
+              </div>
+              <div class="scheda-row">
+                <dt data-i18n="projects.flight.k4">vs FlightBERT</dt>
+                <dd>−75 / −90%</dd>
+              </div>
+            </dl>
           </div>
         </article>
 
@@ -549,8 +598,8 @@
         <div class="section-head">
           <h2 data-i18n="contact.title">Contatti</h2>
           <p class="section-lead" data-i18n="contact.lead">
-            Se hai una posizione aperta o un progetto su cui lavorare, scrivimi.
-            Rispondo a tutti.
+            Per opportunità professionali o di collaborazione scrivimi: rispondo a ogni
+            messaggio.
           </p>
         </div>
 
@@ -583,6 +632,7 @@
 
   <a class="to-top" id="to-top" href="#home" data-i18n-attr="aria-label:a11y.top" aria-label="Torna su">↑</a>
 
+  <script src="assets/js/aerotraj-data.js" defer></script>
   <script src="assets/vendor/motion.js" defer></script>
   <script src="assets/vendor/lenis.min.js" defer></script>
   <script src="assets/js/app.js" defer></script>
